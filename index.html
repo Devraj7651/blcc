@@ -1,0 +1,2679 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLCC Home Work - Admin Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .hide {
+            display: none;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Animation for alerts */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+        .alert-show {
+            animation: slideIn 0.3s forwards;
+        }
+        .alert-hide {
+            animation: fadeOut 0.5s forwards;
+        }
+        /* Image preview */
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        /* Password field styling */
+        .password-field {
+            font-family: monospace;
+            background-color: #f9fafb;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+        }
+        /* Custom gradient background */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        /* Card hover effects */
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        /* Hindi font support */
+        .hindi-text {
+            font-family: 'Nirmala UI', 'Segoe UI', sans-serif;
+        }
+        /* Blocked user styling */
+        .user-blocked {
+            opacity: 0.7;
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+        }
+        /* Video class styling */
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .video-controls button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .video-controls button.active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .video-controls button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .participant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .participant-card {
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 10px;
+            position: relative;
+        }
+        .participant-video {
+            width: 100%;
+            height: 150px;
+            background: #000;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .participant-name {
+            margin-top: 5px;
+            font-weight: 500;
+            text-align: center;
+        }
+        .participant-controls {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .digital-board {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 16px;
+            resize: none;
+            font-family: 'Nirmala UI', 'Segoe UI', sans-serif;
+        }
+        .digital-board-view {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #f9fafb;
+            overflow-y: auto;
+            font-family: 'Nirmala UI', 'Segoe UI', sans-serif;
+        }
+        .speech-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ef4444;
+            margin-left: 5px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        .speech-active {
+            background-color: #22c55e;
+        }
+        .video-class-card {
+            transition: all 0.3s ease;
+        }
+        .video-class-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+        }
+        .status-scheduled {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .status-ongoing {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .status-completed {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        .permission-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+        .permission-btn.active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .permission-btn.inactive {
+            background-color: #fecaca;
+            color: #b91c1c;
+        }
+        /* Quiz specific styles */
+        .quiz-option {
+            display: block;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .quiz-option:hover {
+            background-color: #f0f0f0;
+        }
+        .quiz-option.selected {
+            background-color: #d1ecf1;
+            border-color: #0c5460;
+        }
+        .quiz-option.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+        .quiz-option.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }
+        .quiz-question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .quiz-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .quiz-stat-box {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-100">
+    <header class="bg-white shadow-sm border-b sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="font-bold text-xl flex items-center">
+                <i class="fas fa-book-reader mr-2 text-blue-600"></i> BLCC Home Work
+            </div>
+            <div id="nav" class="flex items-center gap-2"></div>
+        </div>
+    </header>
+
+    <!-- Alert Container -->
+    <div id="alert-container" class="fixed top-4 right-4 z-50 space-y-2 max-w-sm"></div>
+
+    <main id="app" class="max-w-6xl mx-auto p-4"></main>
+
+    <script>
+        // Simple single-file app using localStorage as DB
+        const DBKEY = 'blcc_hw_db_v6';
+        const SESSION = 'blcc_hw_session_v6';
+
+        const seed = {
+            users: [
+                {id:'u-admin', name:'Admin', email:'admin@school.com', username:'admin', password:'admin123', role:'admin', school:'ABC Public School', rollPrefix:'', isBlocked: false, createdAt: Date.now()},
+                {id:'u-teacher', name:'Teacher One', email:'teacher@school.com', username:'teacher', password:'teach123', role:'teacher', school:'ABC Public School', rollPrefix:'', isBlocked: false, createdAt: Date.now()},
+                {id:'u-student1', name:'Student One', email:'s1@school.com', username:'s1', password:'stud123', role:'student', school:'ABC Public School', rollNo:'101', isBlocked: false, createdAt: Date.now()},
+                {id:'u-student2', name:'Student Two', email:'s2@school.com', username:'s2', password:'stud123', role:'student', school:'ABC Public School', rollNo:'102', isBlocked: false, createdAt: Date.now()},
+                {id:'u-abhi', name:'ABHI', email:'abhi@school.com', username:'abhi', password:'Abhi@7651', role:'admin', school:'ABC Public School', isBlocked: false, createdAt: Date.now()}
+            ],
+            homeworks: [
+                {
+                    id: 'hw-sample',
+                    title: 'नमूना गणित का होमवर्क',
+                    desc: 'पृष्ठ 34 के सभी प्रश्न हल करें',
+                    assignedBy: 'u-teacher',
+                    school: 'ABC Public School',
+                    rollNo: '',
+                    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
+                    image: null,
+                    submissions: [],
+                    status: 'assigned'
+                }
+            ],
+            // New data structure for video classes
+            videoClasses: [
+                {
+                    id: 'vc-1',
+                    title: 'गणित की कक्षा',
+                    teacherId: 'u-teacher',
+                    school: 'ABC Public School',
+                    scheduledTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+                    duration: 60,
+                    status: 'scheduled',
+                    participants: [],
+                    digitalBoard: '',
+                    createdAt: Date.now()
+                }
+            ],
+            // New data structure for quizzes
+            quizzes: [
+                {
+                    id: 'qz-1',
+                    title: 'गणित क्विज - अध्याय 1',
+                    description: 'गणित के मूलभूत प्रश्न',
+                    teacherId: 'u-teacher',
+                    school: 'ABC Public School',
+                    rollNo: '',
+                    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
+                    questions: [
+                        {
+                            id: 'q1',
+                            question: '2 + 2 क्या होता है?',
+                            options: ['3', '4', '5', '6'],
+                            correctAnswer: 1
+                        },
+                        {
+                            id: 'q2',
+                            question: '10 × 5 क्या होता है?',
+                            options: ['25', '50', '75', '100'],
+                            correctAnswer: 1
+                        }
+                    ],
+                    submissions: []
+                }
+            ],
+            quizSubmissions: []
+        };
+
+        // Utility functions
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alert-container');
+            const alertId = 'alert-' + Date.now();
+            const alertEl = document.createElement('div');
+            alertEl.id = alertId;
+            alertEl.className = `p-4 rounded-lg shadow-lg alert-show ${type === 'error' ? 'bg-red-100 text-red-700 border border-red-300' : type === 'success' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-blue-100 text-blue-700 border border-blue-300'}`;
+            alertEl.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <div><i class="fas ${type === 'error' ? 'fa-exclamation-circle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle'} mr-2"></i> ${message}</div>
+                    <button onclick="document.getElementById('${alertId}').classList.add('alert-hide'); setTimeout(() => document.getElementById('${alertId}').remove(), 500)" class="text-lg">×</button>
+                </div>
+            `;
+            alertContainer.appendChild(alertEl);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (document.getElementById(alertId)) {
+                    document.getElementById(alertId).classList.add('alert-hide');
+                    setTimeout(() => {
+                        if (document.getElementById(alertId)) document.getElementById(alertId).remove();
+                    }, 500);
+                }
+            }, 5000);
+        }
+
+        // Convert image to base64
+        function convertImageToBase64(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                callback(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        const DB = {
+            load() { 
+                const raw = localStorage.getItem(DBKEY); 
+                if (!raw) { 
+                    localStorage.setItem(DBKEY, JSON.stringify(seed)); 
+                    return structuredClone(seed);
+                } 
+                try {
+                    return JSON.parse(raw);
+                } catch (e) { 
+                    localStorage.setItem(DBKEY, JSON.stringify(seed)); 
+                    return structuredClone(seed);
+                } 
+            },
+            save(data) { localStorage.setItem(DBKEY, JSON.stringify(data)); }
+        };
+
+        function uid(p = 'id') { return p + '_' + Math.random().toString(36).slice(2, 9); }
+
+        const Auth = {
+            current() { 
+                const raw = localStorage.getItem(SESSION); 
+                return raw ? JSON.parse(raw) : null; 
+            },
+            login(username, password) { 
+                const db = DB.load(); 
+                // Make login case-insensitive for username/email
+                const user = db.users.find(u => 
+                    (u.username.toLowerCase() === username.toLowerCase() || u.email.toLowerCase() === username.toLowerCase()) && 
+                    u.password === password
+                ); 
+                if (!user) throw new Error('गलत यूज़रनेम/पासवर्ड'); 
+                if (user.isBlocked) throw new Error('आपका अकाउंट ब्लॉक किया गया है। एडमिन से संपर्क करें।');
+                localStorage.setItem(SESSION, JSON.stringify({id: user.id, username: user.username}));
+                showAlert(`स्वागतम ${user.name}`, 'success');
+                return user;
+            },
+            logout() { 
+                localStorage.removeItem(SESSION); 
+                render(); 
+            },
+            me() { 
+                const s = Auth.current(); 
+                if (!s) return null; 
+                return DB.load().users.find(u => u.id === s.id) || null; 
+            }
+        };
+
+        const App = {
+            init() { 
+                // Initialize database with seed data if empty
+                DB.load();
+                render(); 
+            },
+
+            register(form) { 
+                const db = DB.load(); 
+                const formData = new FormData(form);
+                const name = formData.get('name');
+                const email = formData.get('email');
+                const username = formData.get('username');
+                const password = formData.get('password');
+                const role = formData.get('role');
+                const school = formData.get('school');
+                const rollNo = formData.get('rollNo');
+                
+                if (db.users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+                    throw new Error('यूज़रनेम पहले से मौजूद है');
+                }
+                if (db.users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+                    throw new Error('ईमेल पहले से मौजूद है'); 
+                }
+                
+                const user = { 
+                    id: uid('u'), 
+                    name: name,
+                    email: email,
+                    username: username,
+                    password: password,
+                    role: role, 
+                    school: school || '', 
+                    rollNo: role === 'student' ? (rollNo || '') : '', 
+                    isBlocked: false,
+                    createdAt: Date.now() 
+                }; 
+                
+                db.users.push(user); 
+                DB.save(db); 
+                
+                // Auto login after registration
+                Auth.login(username, password);
+                render();
+            },
+
+            createHomework(form, imageData) { 
+                const db = DB.load(); 
+                const formData = new FormData(form);
+                const title = formData.get('title');
+                const desc = formData.get('desc');
+                const school = formData.get('school');
+                const rollNo = formData.get('rollNo');
+                const dueDate = formData.get('dueDate');
+                
+                const me = Auth.me(); 
+                if (!me || me.role !== 'teacher') throw new Error('अनुमति नहीं है'); 
+                
+                const hw = { 
+                    id: uid('hw'), 
+                    title: title,
+                    desc: desc,
+                    assignedBy: me.id, 
+                    school: school || me.school || '', 
+                    rollNo: rollNo || '', 
+                    dueDate: dueDate || null, 
+                    createdAt: Date.now(), 
+                    image: imageData || null,
+                    submissions: [], 
+                    status: 'assigned' 
+                }; 
+                
+                db.homeworks.unshift(hw); 
+                DB.save(db); 
+                showAlert('होमवर्क सफलतापूर्वक बनाया गया', 'success');
+                renderTeacherDashboard(); 
+            },
+
+            submitHomework(hwId, form, imageData) { 
+                const db = DB.load(); 
+                const formData = new FormData(form);
+                const answer = formData.get('answer');
+                
+                const me = Auth.me(); 
+                if (!me || me.role !== 'student') throw new Error('अनुमति नहीं है'); 
+                
+                const hw = db.homeworks.find(h => h.id === hwId); 
+                if (!hw) throw new Error('होमवर्क नहीं मिला'); 
+                
+                if (!answer.trim()) throw new Error('कृपया उत्तर दर्ज करें');
+                
+                const sIndex = hw.submissions.findIndex(s => s.studentId === me.id); 
+                const submission = { 
+                    studentId: me.id, 
+                    answer: answer, 
+                    image: imageData || null,
+                    submitAt: Date.now(), 
+                    marks: null, 
+                    feedback: null 
+                }; 
+                
+                if (sIndex > -1) { 
+                    hw.submissions[sIndex] = submission; 
+                } else { 
+                    hw.submissions.push(submission); 
+                } 
+                
+                DB.save(db); 
+                showAlert('होमवर्क सफलतापूर्वक जमा किया गया', 'success');
+                renderStudentDashboard(); 
+            },
+
+            gradeSubmission(hwId, studentId, marks, feedback) { 
+                const db = DB.load(); 
+                const me = Auth.me(); 
+                if (!me || me.role !== 'teacher') throw new Error('अनुमति नहीं है'); 
+                
+                const hw = db.homeworks.find(h => h.id === hwId); 
+                if (!hw) return; 
+                
+                const s = hw.submissions.find(s => s.studentId === studentId); 
+                if (!s) return; 
+                
+                s.marks = marks; 
+                s.feedback = feedback; 
+                DB.save(db); 
+                showAlert('अंक सफलतापूर्वक सहेजे गए', 'success');
+                viewHW(hwId); 
+            },
+
+            findHomeworksForStudent(student) { 
+                const db = DB.load(); 
+                return db.homeworks.filter(h => 
+                    h.school === student.school && 
+                    (!h.rollNo || h.rollNo.trim() === '' || h.rollNo === student.rollNo)
+                ); 
+            },
+
+            findHomeworksForTeacher(teacher) { 
+                const db = DB.load(); 
+                return db.homeworks.filter(h => h.assignedBy === teacher.id); 
+            },
+
+            // Admin functions
+            getAllUsers() {
+                const db = DB.load();
+                return db.users;
+            },
+
+            getUserProgress(studentId) {
+                const db = DB.load();
+                const student = db.users.find(u => u.id === studentId);
+                if (!student || student.role !== 'student') return null;
+                
+                const allHomeworks = db.homeworks.filter(h => 
+                    h.school === student.school && 
+                    (!h.rollNo || h.rollNo.trim() === '' || h.rollNo === student.rollNo)
+                );
+                
+                const submitted = allHomeworks.filter(h => 
+                    h.submissions.some(s => s.studentId === studentId)
+                );
+                
+                const graded = submitted.filter(h => {
+                    const submission = h.submissions.find(s => s.studentId === studentId);
+                    return submission.marks !== null;
+                });
+                
+                const totalMarks = graded.reduce((sum, h) => {
+                    const submission = h.submissions.find(s => s.studentId === studentId);
+                    return sum + (submission.marks || 0);
+                }, 0);
+                
+                const average = graded.length > 0 ? (totalMarks / graded.length).toFixed(2) : 0;
+                
+                return {
+                    total: allHomeworks.length,
+                    submitted: submitted.length,
+                    graded: graded.length,
+                    average: average
+                };
+            },
+
+            // Block/Unblock user functions
+            blockUser(userId) {
+                const db = DB.load();
+                const user = db.users.find(u => u.id === userId);
+                if (!user) throw new Error('यूजर नहीं मिला');
+                
+                user.isBlocked = true;
+                DB.save(db);
+                showAlert(`यूजर ${user.name} को ब्लॉक कर दिया गया है`, 'success');
+                return user;
+            },
+
+            unblockUser(userId) {
+                const db = DB.load();
+                const user = db.users.find(u => u.id === userId);
+                if (!user) throw new Error('यूजर नहीं मिला');
+                
+                user.isBlocked = false;
+                DB.save(db);
+                showAlert(`यूजर ${user.name} को अनब्लॉक कर दिया गया है`, 'success');
+                return user;
+            },
+
+            // Video class functions
+            createVideoClass(form) {
+                const db = DB.load();
+                const me = Auth.me();
+                if (!me || me.role !== 'teacher') throw new Error('अनुमति नहीं है');
+                
+                const formData = new FormData(form);
+                const title = formData.get('title');
+                const scheduledTime = formData.get('scheduledTime');
+                const duration = formData.get('duration');
+                
+                const videoClass = {
+                    id: uid('vc'),
+                    title: title,
+                    teacherId: me.id,
+                    school: me.school || '',
+                    scheduledTime: scheduledTime,
+                    duration: parseInt(duration),
+                    status: 'scheduled',
+                    participants: [],
+                    digitalBoard: '',
+                    createdAt: Date.now()
+                };
+                
+                db.videoClasses.unshift(videoClass);
+                DB.save(db);
+                showAlert('वीडियो क्लास सफलतापूर्वक बनाई गई', 'success');
+                renderTeacherDashboard();
+            },
+
+            joinVideoClass(videoClassId) {
+                const db = DB.load();
+                const me = Auth.me();
+                if (!me) throw new Error('लॉगिन आवश्यक है');
+                
+                const videoClass = db.videoClasses.find(vc => vc.id === videoClassId);
+                if (!videoClass) throw new Error('वीडियो क्लास नहीं मिली');
+                
+                // Check if class is scheduled and update to ongoing if teacher is joining
+                if (me.role === 'teacher' && videoClass.status === 'scheduled') {
+                    videoClass.status = 'ongoing';
+                }
+                
+                // Check if class has ended
+                if (videoClass.status === 'completed') {
+                    throw new Error('यह क्लास समाप्त हो चुकी है');
+                }
+                
+                // Check if user is already a participant
+                if (!videoClass.participants.some(p => p.userId === me.id)) {
+                    videoClass.participants.push({
+                        userId: me.id,
+                        name: me.name,
+                        role: me.role,
+                        joinedAt: Date.now(),
+                        audioEnabled: false,
+                        videoEnabled: false,
+                        canSpeak: me.role === 'teacher' // Only teacher can speak by default
+                    });
+                }
+                
+                DB.save(db);
+                return videoClass;
+            },
+
+            updateParticipantPermission(videoClassId, userId, permissions) {
+                const db = DB.load();
+                const videoClass = db.videoClasses.find(vc => vc.id === videoClassId);
+                if (!videoClass) return;
+                
+                const participant = videoClass.participants.find(p => p.userId === userId);
+                if (participant) {
+                    Object.assign(participant, permissions);
+                    DB.save(db);
+                }
+            },
+
+            // Digital board functions
+            updateDigitalBoard(videoClassId, text) {
+                const db = DB.load();
+                const videoClass = db.videoClasses.find(vc => vc.id === videoClassId);
+                if (videoClass) {
+                    videoClass.digitalBoard = text;
+                    DB.save(db);
+                }
+            },
+            
+            // End video class
+            endVideoClass(videoClassId) {
+                const db = DB.load();
+                const videoClass = db.videoClasses.find(vc => vc.id === videoClassId);
+                if (videoClass) {
+                    videoClass.status = 'completed';
+                    videoClass.endedAt = Date.now();
+                    DB.save(db);
+                    showAlert('वीडियो क्लास समाप्त की गई', 'success');
+                }
+            },
+
+            // Quiz functions
+            createQuiz(form) {
+                const db = DB.load();
+                const me = Auth.me();
+                if (!me || me.role !== 'teacher') throw new Error('अनुमति नहीं है');
+                
+                const formData = new FormData(form);
+                const title = formData.get('title');
+                const description = formData.get('description');
+                const school = formData.get('school');
+                const rollNo = formData.get('rollNo');
+                const dueDate = formData.get('dueDate');
+                
+                // Parse questions from form data
+                const questions = [];
+                let questionIndex = 0;
+                
+                while (formData.get(`questions[${questionIndex}][question]`)) {
+                    const questionText = formData.get(`questions[${questionIndex}][question]`);
+                    const options = [
+                        formData.get(`questions[${questionIndex}][option1]`),
+                        formData.get(`questions[${questionIndex}][option2]`),
+                        formData.get(`questions[${questionIndex}][option3]`),
+                        formData.get(`questions[${questionIndex}][option4]`)
+                    ];
+                    const correctAnswer = parseInt(formData.get(`questions[${questionIndex}][correctAnswer]`));
+                    
+                    questions.push({
+                        id: uid('q'),
+                        question: questionText,
+                        options: options,
+                        correctAnswer: correctAnswer
+                    });
+                    
+                    questionIndex++;
+                }
+                
+                if (questions.length === 0) {
+                    throw new Error('कम से कम एक प्रश्न जोड़ें');
+                }
+                
+                const quiz = {
+                    id: uid('qz'),
+                    title: title,
+                    description: description,
+                    teacherId: me.id,
+                    school: school || me.school || '',
+                    rollNo: rollNo || '',
+                    dueDate: dueDate || null,
+                    createdAt: Date.now(),
+                    questions: questions,
+                    submissions: []
+                };
+                
+                db.quizzes.unshift(quiz);
+                DB.save(db);
+                showAlert('क्विज सफलतापूर्वक बनाई गई', 'success');
+                renderTeacherDashboard();
+            },
+
+            submitQuiz(quizId, answers) {
+                const db = DB.load();
+                const me = Auth.me();
+                if (!me || me.role !== 'student') throw new Error('अनुमति नहीं है');
+                
+                const quiz = db.quizzes.find(q => q.id === quizId);
+                if (!quiz) throw new Error('क्विज नहीं मिली');
+                
+                // Calculate score
+                let score = 0;
+                quiz.questions.forEach((question, index) => {
+                    if (answers[index] === question.correctAnswer) {
+                        score++;
+                    }
+                });
+                
+                const percentage = (score / quiz.questions.length) * 100;
+                
+                const submission = {
+                    id: uid('sub'),
+                    studentId: me.id,
+                    quizId: quizId,
+                    answers: answers,
+                    score: score,
+                    total: quiz.questions.length,
+                    percentage: percentage,
+                    submittedAt: Date.now()
+                };
+                
+                // Check if student already submitted
+                const existingIndex = quiz.submissions.findIndex(s => s.studentId === me.id);
+                if (existingIndex > -1) {
+                    quiz.submissions[existingIndex] = submission;
+                } else {
+                    quiz.submissions.push(submission);
+                }
+                
+                // Also store in quizSubmissions for easy access
+                const globalSubmissionIndex = db.quizSubmissions.findIndex(s => s.studentId === me.id && s.quizId === quizId);
+                if (globalSubmissionIndex > -1) {
+                    db.quizSubmissions[globalSubmissionIndex] = submission;
+                } else {
+                    db.quizSubmissions.push(submission);
+                }
+                
+                DB.save(db);
+                return submission;
+            },
+
+            findQuizzesForStudent(student) {
+                const db = DB.load();
+                return db.quizzes.filter(q => 
+                    q.school === student.school && 
+                    (!q.rollNo || q.rollNo.trim() === '' || q.rollNo === student.rollNo)
+                );
+            },
+
+            findQuizzesForTeacher(teacher) {
+                const db = DB.load();
+                return db.quizzes.filter(q => q.teacherId === teacher.id);
+            },
+
+            getQuizProgress(studentId) {
+                const db = DB.load();
+                const student = db.users.find(u => u.id === studentId);
+                if (!student || student.role !== 'student') return null;
+                
+                const allQuizzes = db.quizzes.filter(q => 
+                    q.school === student.school && 
+                    (!q.rollNo || q.rollNo.trim() === '' || q.rollNo === student.rollNo)
+                );
+                
+                const submitted = allQuizzes.filter(q => 
+                    q.submissions.some(s => s.studentId === studentId)
+                );
+                
+                const averageScore = submitted.length > 0 ? 
+                    submitted.reduce((sum, q) => {
+                        const submission = q.submissions.find(s => s.studentId === studentId);
+                        return sum + submission.percentage;
+                    }, 0) / submitted.length : 0;
+                
+                return {
+                    total: allQuizzes.length,
+                    submitted: submitted.length,
+                    average: averageScore.toFixed(2)
+                };
+            }
+        };
+
+        // UI render helpers
+        function setNav() { 
+            const nav = document.getElementById('nav'); 
+            const me = Auth.me(); 
+            nav.innerHTML = ''; 
+            
+            if (me) { 
+                const btn = document.createElement('button'); 
+                btn.className = 'px-3 py-1 rounded bg-gray-900 text-white flex items-center'; 
+                btn.innerHTML = `<i class="fas fa-user-circle mr-1"></i> ${me.name} (${me.role}) — लॉगआउट`; 
+                btn.onclick = () => { Auth.logout(); }; 
+                nav.appendChild(btn); 
+                
+                if (me.role === 'admin') {
+                    const abtn = document.createElement('button'); 
+                    abtn.className = 'ml-2 px-3 py-1 rounded border flex items-center'; 
+                    abtn.innerHTML = '<i class="fas fa-cog mr-1"></i> एडमिन पैनल'; 
+                    abtn.onclick = () => renderAdminDashboard(); 
+                    nav.appendChild(abtn);
+                } else if (me.role === 'teacher') { 
+                    const tbtn = document.createElement('button'); 
+                    tbtn.className = 'ml-2 px-3 py-1 rounded border flex items-center'; 
+                    tbtn.innerHTML = '<i class="fas fa-chalkboard-teacher mr-1"></i> टीचर डैशबोर्ड'; 
+                    tbtn.onclick = () => renderTeacherDashboard(); 
+                    nav.appendChild(tbtn);
+                } else { 
+                    const sbtn = document.createElement('button'); 
+                    sbtn.className = 'ml-2 px-3 py-1 rounded border flex items-center'; 
+                    sbtn.innerHTML = '<i class="fas fa-user-graduate mr-1"></i> स्टूडेंट डैशबोर्ड'; 
+                    sbtn.onclick = () => renderStudentDashboard(); 
+                    nav.appendChild(sbtn); 
+                } 
+            } else { 
+                const l = document.createElement('button'); 
+                l.className = 'px-3 py-1 rounded border flex items-center'; 
+                l.innerHTML = '<i class="fas fa-sign-in-alt mr-1"></i> लॉगिन'; 
+                l.onclick = () => renderLogin(); 
+                nav.appendChild(l); 
+                
+                const r = document.createElement('button'); 
+                r.className = 'ml-2 px-3 py-1 rounded border flex items-center'; 
+                    r.innerHTML = '<i class="fas fa-user-plus mr-1"></i> रजिस्टर'; 
+                    r.onclick = () => renderRegister(); 
+                    nav.appendChild(r); 
+            } 
+        }
+
+        function render() { 
+            setNav(); 
+            const me = Auth.me(); 
+            
+            if (!me) {
+                renderWelcome();
+            } else if (me.role === 'admin') {
+                renderAdminDashboard();
+            } else if (me.role === 'teacher') {
+                renderTeacherDashboard();
+            } else if (me.role === 'student') {
+                renderStudentDashboard();
+            } else {
+                renderWelcome();
+            }
+        }
+
+        function renderWelcome() { 
+            document.getElementById('app').innerHTML = `
+            <div class="bg-white rounded-2xl p-6 shadow text-center card-hover">
+                <div class="text-blue-600 text-5xl mb-4"><i class="fas fa-book-reader"></i></div>
+                <h1 class="text-2xl font-bold">BLCC Home Work</h1>
+                <p class="mt-2 text-gray-600">शिक्षक और विद्यार्थी के लिए सरल होमवर्क मैनेजमेंट। पहले रजिस्टर करें या लॉगिन करें।</p>
+                <div class="mt-6 flex gap-3 justify-center">
+                    <button class="px-4 py-2 rounded bg-blue-600 text-white flex items-center hover:bg-blue-700 transition-colors" onclick="renderRegister()"><i class="fas fa-user-plus mr-1"></i> रजिस्ट्रेशन</button>
+                    <button class="px-4 py-2 rounded bg-gray-800 text-white flex items-center hover:bg-gray-900 transition-colors" onclick="renderLogin()"><i class="fas fa-sign-in-alt mr-1"></i> लॉगिन</button>
+                </div>
+            </div>`; 
+        }
+
+        function renderRegister() { 
+            document.getElementById('app').innerHTML = `
+            <div class="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow card-hover">
+                <h2 class="text-xl font-bold flex items-center"><i class="fas fa-user-plus mr-2 text-blue-600"></i> रजिस्ट्रेशन</h2>
+                <form id="regForm" class="mt-4 grid gap-3">
+                    <input name="name" placeholder="पूरा नाम" class="p-2 border rounded" required />
+                    <input name="email" type="email" placeholder="ईमेल" class="p-2 border rounded" required />
+                    <input name="username" placeholder="यूज़रनेम" class="p-2 border rounded" required />
+                    <input name="password" type="password" placeholder="पासवर्�ード" class="p-2 border rounded" required />
+                    <select name="role" id="roleSelect" class="p-2 border rounded" onchange="toggleRollNoField()">
+                        <option value="student">विद्यार्थी</option>
+                        <option value="teacher">शिक्षक</option>
+                    </select>
+                    <input name="school" placeholder="विद्यालय का नाम" class="p-2 border rounded" />
+                    <div id="rollNoField">
+                        <input name="rollNo" placeholder="रोल नंबर (विद्यार्थी के लिए)" class="p-2 border rounded" />
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white flex items-center hover:bg-blue-700 transition-colors"><i class="fas fa-user-plus mr-1"></i> रजिस्टर करें</button>
+                        <button type="button" class="px-4 py-2 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="render()"><i class="fas fa-arrow-left mr-1"></i> बैक</button>
+                    </div>
+                </form>
+            </div>`;
+
+            // Initially hide rollNo field if teacher is selected
+            toggleRollNoField();
+            
+            document.getElementById('regForm').onsubmit = (e) => { 
+                e.preventDefault(); 
+                try { 
+                    App.register(e.target); 
+                } catch (err) { 
+                    showAlert(err.message, 'error');
+                } 
+            }; 
+        }
+
+        function toggleRollNoField() {
+            const roleSelect = document.getElementById('roleSelect');
+            const rollNoField = document.getElementById('rollNoField');
+            if (roleSelect && rollNoField) {
+                if (roleSelect.value === 'student') {
+                    rollNoField.style.display = 'block';
+                } else {
+                    rollNoField.style.display = 'none';
+                }
+            }
+        }
+
+        function renderLogin() { 
+            document.getElementById('app').innerHTML = `
+            <div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow card-hover">
+                <h2 class="text-xl font-bold flex items-center"><i class="fas fa-sign-in-alt mr-2 text-blue-600"></i> लॉगिन</h2>
+                <form id="loginForm" class="mt-4 grid gap-3">
+                    <input name="username" placeholder="यूज़रनेम या ईमेल" class="p-2 border rounded" required />
+                    <input name="password" type="password" placeholder="पासवर्ड" class="p-2 border rounded" required />
+                    <div class="flex gap-2">
+                        <button type="submit" class="px-4 py-2 rounded bg-gray-900 text-white flex items-center hover:bg-gray-800 transition-colors"><i class="fas fa-sign-in-alt mr-1"></i> लॉगिन</button>
+                        <button type="button" class="px-4 py-2 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="render()"><i class="fas fa-arrow-left mr-1"></i> बैक</button>
+                    </div>
+                </form>
+            </div>`;
+
+            document.getElementById('loginForm').onsubmit = (e) => { 
+                e.preventDefault(); 
+                const formData = new FormData(e.target);
+                const username = formData.get('username');
+                const password = formData.get('password');
+                
+                try { 
+                    Auth.login(username, password); 
+                    render(); 
+                } catch (err) { 
+                    showAlert(err.message, 'error');
+                } 
+            };
+        }
+
+        // Admin Dashboard
+        function renderAdminDashboard() {
+            const me = Auth.me();
+            if (!me || me.role !== 'admin') return render();
+            
+            const users = App.getAllUsers();
+            const teachers = users.filter(u => u.role === 'teacher');
+            const students = users.filter(u => u.role === 'student');
+            
+            document.getElementById('app').innerHTML = `
+                <div class="bg-white rounded-2xl shadow p-6">
+                    <h2 class="text-xl font-bold flex items-center mb-6">
+                        <i class="fas fa-cog mr-2 text-blue-600"></i> एडमिन पैनल - यूजर प्रबंधन
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-lg mb-3 flex items-center">
+                                <i class="fas fa-chalkboard-teacher mr-2"></i> शिक्षकों की सूची (${teachers.length})
+                            </h3>
+                            <div class="space-y-3 max-h-80 overflow-y-auto">
+                                ${teachers.map(teacher => `
+                                    <div class="p-3 rounded border card-hover ${teacher.isBlocked ? 'user-blocked' : 'bg-white'}">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <div class="font-medium">${escapeHtml(teacher.name)} ${teacher.isBlocked ? '<span class="text-red-600 text-sm">(ब्लॉक्ड)</span>' : ''}</div>
+                                                <div class="text-sm text-gray-500">${escapeHtml(teacher.email)}</div>
+                                                <div class="text-sm text-gray-500">यूज़रनेम: ${escapeHtml(teacher.username)}</div>
+                                                <div class="text-sm text-gray-500">पासवर्ड: <span class="password-field">${escapeHtml(teacher.password)}</span></div>
+                                                <div class="text-sm text-gray-500">विद्यालय: ${escapeHtml(teacher.school)}</div>
+                                            </div>
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">शिक्षक</span>
+                                        </div>
+                                        <div class="mt-3 flex gap-2">
+                                            ${teacher.isBlocked ? 
+                                                `<button class="px-3 py-1 rounded bg-green-600 text-white text-sm flex items-center hover:bg-green-700 transition-colors" onclick="unblockUser('${teacher.id}')">
+                                                    <i class="fas fa-unlock mr-1"></i> अनब्लॉक
+                                                </button>` : 
+                                                `<button class="px-3 py-1 rounded bg-red-600 text-white text-sm flex items-center hover:bg-red-700 transition-colors" onclick="blockUser('${teacher.id}')">
+                                                    <i class="fas fa-ban mr-1"></i> ब्लॉक
+                                                </button>`
+                                            }
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-lg mb-3 flex items-center">
+                                <i class="fas fa-user-graduate mr-2"></i> छात्रों की सूची (${students.length})
+                            </h3>
+                            <div class="space-y-3 max-h-80 overflow-y-auto">
+                                ${students.map(student => {
+                                    const progress = App.getUserProgress(student.id);
+                                    return `
+                                        <div class="p-3 rounded border card-hover ${student.isBlocked ? 'user-blocked' : 'bg-white'}">
+                                            <div class="flex justify-between items-start">
+                                                <div>
+                                                    <div class="font-medium">${escapeHtml(student.name)} ${student.isBlocked ? '<span class="text-red-600 text-sm">(ब्लॉक्ड)</span>' : ''}</div>
+                                                    <div class="text-sm text-gray-500">रोल नंबर: ${escapeHtml(student.rollNo)}</div>
+                                                    <div class="text-sm text-gray-500">यूज़रनेम: ${escapeHtml(student.username)}</div>
+                                                    <div class="text-sm text-gray-500">पासवर्ड: <span class="password-field">${escapeHtml(student.password)}</span></div>
+                                                    <div class="text-sm text-gray-500">विद्यालय: ${escapeHtml(student.school)}</div>
+                                                    ${progress ? `
+                                                        <div class="mt-2 text-xs">
+                                                            <div class="text-blue-600">कुल होमवर्क: ${progress.total}</div>
+                                                            <div class="text-green-600">जमा किए: ${progress.submitted}</div>
+                                                            <div class="text-purple-600">अंकित: ${progress.graded}</div>
+                                                            <div class="text-orange-600">औसत अंक: ${progress.average}</div>
+                                                        </div>
+                                                    ` : ''}
+                                                </div>
+                                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">छात्र</span>
+                                            </div>
+                                            <div class="mt-3 flex gap-2">
+                                                ${student.isBlocked ? 
+                                                    `<button class="px-3 py-1 rounded bg-green-600 text-white text-sm flex items-center hover:bg-green-700 transition-colors" onclick="unblockUser('${student.id}')">
+                                                        <i class="fas fa-unlock mr-1"></i> अनब्लॉक
+                                                    </button>` : 
+                                                    `<button class="px-3 py-1 rounded bg-red-600 text-white text-sm flex items-center hover:bg-red-700 transition-colors" onclick="blockUser('${student.id}')">
+                                                        <i class="fas fa-ban mr-1"></i> ब्लॉक
+                                                    </button>`
+                                                }
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Block/Unblock user functions
+        function blockUser(userId) {
+            try {
+                App.blockUser(userId);
+                renderAdminDashboard();
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        }
+
+        function unblockUser(userId) {
+            try {
+                App.unblockUser(userId);
+                renderAdminDashboard();
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        }
+
+        // Teacher Dashboard
+        function renderTeacherDashboard() { 
+            const me = Auth.me(); 
+            if (!me || me.role !== 'teacher') return render(); 
+            const db = DB.load(); 
+            const myHW = App.findHomeworksForTeacher(me);
+            const myVideoClasses = db.videoClasses ? db.videoClasses.filter(vc => vc.teacherId === me.id) : [];
+            const myQuizzes = db.quizzes ? App.findQuizzesForTeacher(me) : [];
+            
+            document.getElementById('app').innerHTML = `
+                <div class="grid md:grid-cols-3 gap-4">
+                    <section class="md:col-span-2 bg-white p-4 rounded-2xl shadow">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xl font-bold flex items-center"><i class="fas fa-chalkboard-teacher mr-2 text-blue-600"></i> Teacher Dashboard</h2>
+                            <div class="flex gap-2">
+                                <button class="px-3 py-1 rounded bg-blue-600 text-white flex items-center hover:bg-blue-700 transition-colors" onclick="renderCreateHomework()"><i class="fas fa-plus mr-1"></i> नया Homework दें</button>
+                                <button class="px-3 py-1 rounded bg-purple-600 text-white flex items-center hover:bg-purple-700 transition-colors" onclick="renderCreateVideoClass()"><i class="fas fa-video mr-1"></i> नई क्लास</button>
+                                <button class="px-3 py-1 rounded bg-green-600 text-white flex items-center hover:bg-green-700 transition-colors" onclick="renderCreateQuiz()"><i class="fas fa-question-circle mr-1"></i> नई क्विज</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <h3 class="font-semibold text-lg flex items-center mb-3"><i class="fas fa-video mr-2 text-purple-600"></i> मेरी वीडियो क्लासेस</h3>
+                            <div class="grid md:grid-cols-2 gap-3">
+                                ${myVideoClasses.length > 0 ? myVideoClasses.map(vc => `
+                                    <div class="border p-3 rounded-2xl video-class-card ${vc.status === 'ongoing' ? 'bg-blue-50 border-blue-200' : vc.status === 'completed' ? 'bg-gray-50 border-gray-200' : 'bg-white'}">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <b>${escapeHtml(vc.title)}</b>
+                                                <div class="text-xs text-gray-500">${formatDateTime(vc.scheduledTime)}</div>
+                                            </div>
+                                            <span class="status-badge status-${vc.status}">${getStatusText(vc.status)}</span>
+                                        </div>
+                                        <div class="mt-2 text-sm text-gray-700">${vc.participants ? vc.participants.length : 0} प्रतिभागी</div>
+                                        <div class="mt-3 flex gap-2">
+                                            ${vc.status === 'scheduled' || vc.status === 'ongoing' ? `
+                                                <button class="px-3 py-1 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="joinVideoClassAsTeacher('${vc.id}')">
+                                                    <i class="fas fa-play mr-1"></i> Join
+                                                </button>
+                                            ` : ''}
+                                            <button class="px-3 py-1 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="viewVideoClass('${vc.id}')">
+                                                <i class="fas fa-eye mr-1"></i> View
+                                            </button>
+                                        </div>
+                                    </div>
+                                `).join('') : '<div class="text-center py-4 text-gray-500 col-span-2">कोई वीडियो क्लास नहीं है। एक नई क्लास बनाएं।</div>'}
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <h3 class="font-semibold text-lg flex items-center mb-3"><i class="fas fa-question-circle mr-2 text-green-600"></i> मेरी क्विज़</h3>
+                            <div class="grid md:grid-cols-2 gap-3">
+                                ${myQuizzes.length > 0 ? myQuizzes.map(quiz => {
+                                    const subCount = quiz.submissions.length;
+                                    return `
+                                        <div class="border p-3 rounded-2xl video-class-card bg-white">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <b>${escapeHtml(quiz.title)}</b>
+                                                    <div class="text-xs text-gray-500">${quiz.school} ${quiz.rollNo ? ('/ Roll: ' + quiz.rollNo) : ''}</div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 text-sm text-gray-700">${escapeHtml(quiz.description || '')}</div>
+                                            <div class="mt-2 text-sm text-gray-700">${quiz.questions.length} प्रश्न</div>
+                                            <div class="mt-2 text-sm text-gray-700">${subCount} submissions</div>
+                                            ${quiz.dueDate ? `<div class="mt-1 text-xs ${new Date(quiz.dueDate) < new Date() ? 'text-red-600' : 'text-gray-500'}">Due: ${formatDate(quiz.dueDate)}</div>` : ''}
+                                            <div class="mt-3 flex gap-2">
+                                                <button class="px-3 py-1 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="viewQuiz('${quiz.id}')"><i class="fas fa-eye mr-1"></i> View</button>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('') : '<div class="text-center py-4 text-gray-500 col-span-2">कोई क्विज नहीं है। एक नई क्विज बनाएं।</div>'}
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <h3 class="font-semibold text-lg flex items-center mb-3"><i class="fas fa-book-open mr-2 text-blue-600"></i> मेरे होमवर्क</h3>
+                            <div class="mt-4 space-y-3">
+                                ${myHW.length > 0 ? myHW.map(hw => {
+                                    const subCount = hw.submissions.length;
+                                    const gradedCount = hw.submissions.filter(s => s.marks !== null).length;
+                                    return `
+                                        <div class="border p-3 rounded-2xl hover:shadow-md transition-shadow card-hover">
+                                            <div class="flex items-center justify-between">
+                                                <div><b>${escapeHtml(hw.title)}</b> <div class="text-xs text-gray-500">${hw.school} ${hw.rollNo ? ('/ Roll: ' + hw.rollNo) : ''}</div></div>
+                                                <div class="text-sm text-gray-600">Submissions: ${subCount} | Graded: ${gradedCount}</div>
+                                            </div>
+                                            <div class="mt-2 text-sm text-gray-700">${escapeHtml(hw.desc || '')}</div>
+                                            ${hw.image ? `<div class="mt-2"><img src="${hw.image}" class="image-preview" alt="Homework Image"></div>` : ''}
+                                            ${hw.dueDate ? `<div class="mt-1 text-xs ${new Date(hw.dueDate) < new Date() ? 'text-red-600' : 'text-gray-500'}">Due: ${formatDate(hw.dueDate)}</div>` : ''}
+                                            <div class="mt-3 flex gap-2">
+                                                <button class="px-3 py-1 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="viewHW('${hw.id}')"><i class="fas fa-eye mr-1"></i> विवरण/Submissions</button>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('') : '<div class="text-center py-8 text-gray-500"><i class="fas fa-book-open text-3xl mb-2"></i><p>कोई होमवर्क नहीं</p></div>'}
+                            </div>
+                        </div>
+                    </section>
+
+                    <aside class="bg-white p-4 rounded-2xl shadow h-fit sticky top-20">
+                        <h3 class="font-bold flex items-center"><i class="fas fa-chart-bar mr-2 text-blue-600"></i> Quick Stats</h3>
+                        <div class="mt-4 space-y-2">
+                            <div class="flex justify-between"><span>Total Homeworks:</span> <span class="font-semibold">${myHW.length}</span></div>
+                            <div class="flex justify-between"><span>Total Quizzes:</span> <span class="font-semibold">${myQuizzes.length}</span></div>
+                            <div class="flex justify-between"><span>Students:</span> <span class="font-semibold">${db.users.filter(u => u.role === 'student' && u.school === me.school).length}</span></div>
+                            <div class="flex justify-between"><span>Total Submissions:</span> <span class="font-semibold">${myHW.reduce((acc, hw) => acc + hw.submissions.length, 0)}</span></div>
+                            <div class="flex justify-between"><span>Quiz Submissions:</span> <span class="font-semibold">${myQuizzes.reduce((acc, quiz) => acc + quiz.submissions.length, 0)}</span></div>
+                            <div class="flex justify-between"><span>Video Classes:</span> <span class="font-semibold">${myVideoClasses.length}</span></div>
+                        </div>
+                    </aside>
+                </div>
+            `;
+        }
+
+        function renderCreateQuiz() {
+            const me = Auth.me();
+            const today = new Date().toISOString().split('T')[0];
+            
+            document.getElementById('app').innerHTML = `
+            <div class="bg-white p-6 rounded-2xl shadow max-w-3xl mx-auto card-hover">
+                <h2 class="text-xl font-bold flex items-center"><i class="fas fa-question-circle mr-2 text-green-600"></i> नई क्विज बनाएँ</h2>
+                <form id="quizForm" class="mt-4 grid gap-3">
+                    <input name="title" placeholder="क्विज का शीर्षक" class="p-2 border rounded" required />
+                    <textarea name="description" placeholder="क्विज का विवरण" class="p-2 border rounded" rows="2"></textarea>
+                    <input name="school" placeholder="विद्यालय" class="p-2 border rounded" value="${me.school || ''}" />
+                    <input name="rollNo" placeholder="विशेष रोल नंबर दें (वैकल्पिक) - eg: 101" class="p-2 border rounded" />
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Due Date (वैकल्पिक)</label>
+                        <input name="dueDate" type="date" min="${today}" class="p-2 border rounded w-full" />
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h3 class="font-semibold flex items-center mb-3"><i class="fas fa-question mr-2"></i> प्रश्न जोड़ें</h3>
+                        <div id="questionsContainer">
+                            <div class="question-item border p-4 rounded-lg mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">प्रश्न 1</span>
+                                    <button type="button" class="text-red-500 hover:text-red-700" onclick="removeQuestion(this)"><i class="fas fa-times"></i></button>
+                                </div>
+                                <input name="questions[0][question]" placeholder="प्रश्न दर्ज करें" class="p-2 border rounded w-full mb-2" required />
+                                <div class="grid grid-cols-2 gap-2 mb-2">
+                                    <input name="questions[0][option1]" placeholder="विकल्प 1" class="p-2 border rounded" required />
+                                    <input name="questions[0][option2]" placeholder="विकल्प 2" class="p-2 border rounded" required />
+                                    <input name="questions[0][option3]" placeholder="विकल्प 3" class="p-2 border rounded" required />
+                                    <input name="questions[0][option4]" placeholder="विकल्प 4" class="p-2 border rounded" required />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">सही उत्तर</label>
+                                    <select name="questions[0][correctAnswer]" class="p-2 border rounded w-full" required>
+                                        <option value="0">विकल्प 1</option>
+                                        <option value="1">विकल्प 2</option>
+                                        <option value="2">विकल्प 3</option>
+                                        <option value="3">विकल्प 4</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300 w-full mt-2" onclick="addQuestion()"><i class="fas fa-plus mr-1"></i> प्रश्न जोड़ें</button>
+                    </div>
+                    
+                    <div class="flex gap-2 mt-4">
+                        <button type="submit" class="px-4 py-2 rounded bg-green-600 text-white flex items-center hover:bg-green-700 transition-colors"><i class="fas fa-save mr-1"></i> Create Quiz</button>
+                        <button type="button" class="px-4 py-2 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="renderTeacherDashboard()"><i class="fas fa-times mr-1"></i> Cancel</button>
+                    </div>
+                </form>
+            </div>`;
+
+            document.getElementById('quizForm').onsubmit = (e) => { 
+                e.preventDefault(); 
+                try { 
+                    App.createQuiz(e.target); 
+                } catch (err) { 
+                    showAlert(err.message, 'error');
+                } 
+            };
+        }
+
+        function addQuestion() {
+            const questionsContainer = document.getElementById('questionsContainer');
+            const questionCount = questionsContainer.children.length;
+            
+            const questionHtml = `
+                <div class="question-item border p-4 rounded-lg mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium">प्रश्न ${questionCount + 1}</span>
+                        <button type="button" class="text-red-500 hover:text-red-700" onclick="removeQuestion(this)"><i class="fas fa-times"></i></button>
+                    </div>
+                    <input name="questions[${questionCount}][question]" placeholder="प्रश्न दर्ज करें" class="p-2 border rounded w-full mb-2" required />
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <input name="questions[${questionCount}][option1]" placeholder="विकल्प 1" class="p-2 border rounded" required />
+                        <input name="questions[${questionCount}][option2]" placeholder="विकल्प 2" class="p-2 border rounded" required />
+                        <input name="questions[${questionCount}][option3]" placeholder="विकल्प 3" class="p-2 border rounded" required />
+                        <input name="questions[${questionCount}][option4]" placeholder="विकल्प 4" class="p-2 border rounded" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">सही उत्तर</label>
+                        <select name="questions[${questionCount}][correctAnswer]" class="p-2 border rounded w-full" required>
+                            <option value="0">विकल्प 1</option>
+                            <option value="1">विकल्प 2</option>
+                            <option value="2">विकल्प 3</option>
+                            <option value="3">विकल्प 4</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            
+            questionsContainer.insertAdjacentHTML('beforeend', questionHtml);
+        }
+
+        function removeQuestion(button) {
+            if (document.getElementById('questionsContainer').children.length > 1) {
+                button.closest('.question-item').remove();
+                
+                // Reindex questions
+                const questions = document.querySelectorAll('.question-item');
+                questions.forEach((question, index) => {
+                    question.querySelector('.font-medium').textContent = `प्रश्न ${index + 1}`;
+                    
+                    const inputs = question.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        const name = input.getAttribute('name');
+                        if (name) {
+                            input.setAttribute('name', name.replace(/\[\d+\]/, `[${index}]`));
+                        }
+                    });
+                });
+            } else {
+                showAlert('कम से कम एक प्रश्न होना चाहिए', 'error');
+            }
+        }
+
+        function viewQuiz(quizId) {
+            const db = DB.load();
+            const quiz = db.quizzes.find(q => q.id === quizId);
+            if (!quiz) return;
+            
+            const teacher = db.users.find(u => u.id === quiz.teacherId);
+            
+            document.getElementById('app').innerHTML = `
+                <div class="bg-white p-4 rounded-2xl shadow">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold flex items-center"><i class="fas fa-question-circle mr-2 text-green-600"></i> ${escapeHtml(quiz.title)}</h3>
+                        <div>
+                            <button class="px-3 py-1 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="renderTeacherDashboard()"><i class="fas fa-arrow-left mr-1"></i> Back</button>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-gray-700">${escapeHtml(quiz.description || '')}</div>
+                    ${quiz.dueDate ? `<div class="mt-1 text-sm ${new Date(quiz.dueDate) < new Date() ? 'text-red-600' : 'text-gray-500'}">Due: ${formatDate(quiz.dueDate)}</div>` : ''}
+                    
+                    <div class="mt-6">
+                        <h4 class="font-semibold text-lg flex items-center"><i class="fas fa-list-ol mr-2"></i> प्रश्न (${quiz.questions.length})</h4>
+                        <div class="mt-2 space-y-4">
+                            ${quiz.questions.map((q, index) => `
+                                <div class="border p-4 rounded-lg">
+                                    <div class="font-medium">${index + 1}. ${escapeHtml(q.question)}</div>
+                                    <div class="mt-2 grid grid-cols-2 gap-2">
+                                        ${q.options.map((opt, optIndex) => `
+                                            <div class="p-2 border rounded ${optIndex === q.correctAnswer ? 'bg-green-100 border-green-300' : ''}">
+                                                ${String.fromCharCode(65 + optIndex)}. ${escapeHtml(opt)}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h4 class="font-semibold text-lg flex items-center"><i class="fas fa-file-alt mr-2"></i> Submissions (${quiz.submissions.length})</h4>
+                        <div class="mt-2 space-y-4">
+                            ${quiz.submissions.length > 0 ? quiz.submissions.map(s => {
+                                const student = db.users.find(u => u.id === s.studentId);
+                                return `
+                                    <div class="border p-4 rounded-lg">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <b>${escapeHtml(student.name)}</b> 
+                                                <span class="text-xs text-gray-500 ml-2">Roll: ${student.rollNo}</span>
+                                            </div>
+                                            <div class="text-lg font-semibold ${s.percentage >= 70 ? 'text-green-600' : s.percentage >= 40 ? 'text-yellow-600' : 'text-red-600'}">
+                                                ${s.percentage}%
+                                            </div>
+                                        </div>
+                                        <div class="text-sm text-gray-500">Score: ${s.score}/${s.total}</div>
+                                        <div class="text-sm text-gray-500">Submitted: ${formatDateTime(s.submittedAt)}</div>
+                                    </div>
+                                `;
+                            }).join('') : '<div class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-3xl mb-2"></i><p>कोई submission नहीं</p></div>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCreateVideoClass() {
+            const me = Auth.me();
+            const now = new Date();
+            const defaultTime = new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString().slice(0, 16);
+            
+            document.getElementById('app').innerHTML = `
+            <div class="bg-white p-6 rounded-2xl shadow max-w-2xl mx-auto card-hover">
+                <h2 class="text-xl font-bold flex items-center"><i class="fas fa-video mr-2 text-purple-600"></i> नई वीडियो क्लास बनाएँ</h2>
+                <form id="videoClassForm" class="mt-4 grid gap-3">
+                    <input name="title" placeholder="क्लास का शीर्षक" class="p-2 border rounded" required />
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">शेड्यूल्ड समय</label>
+                        <input name="scheduledTime" type="datetime-local" value="${defaultTime}" class="p-2 border rounded w-full" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">अवधि (मिनटों में)</label>
+                        <input name="duration" type="number" min="5" max='180' value="60" class="p-2 border rounded w-full" required />
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="px-4 py-2 rounded bg-purple-600 text-white flex items-center hover:bg-purple-700 transition-colors"><i class="fas fa-save mr-1"></i> Create Class</button>
+                        <button type="button" class="px-4 py-2 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="renderTeacherDashboard()"><i class="fas fa-times mr-1"></i> Cancel</button>
+                    </div>
+                </form>
+            </div>`;
+
+            document.getElementById('videoClassForm').onsubmit = (e) => { 
+                e.preventDefault(); 
+                try { 
+                    App.createVideoClass(e.target); 
+                } catch (err) { 
+                    showAlert(err.message, 'error');
+                } 
+            };
+        }
+
+        function joinVideoClassAsTeacher(videoClassId) {
+            try {
+                const videoClass = App.joinVideoClass(videoClassId);
+                renderVideoClassRoom(videoClassId, true);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        }
+
+        function viewVideoClass(videoClassId) {
+            const db = DB.load();
+            const videoClass = db.videoClasses.find(vc => vc.id === videoClassId);
+            if (!videoClass) return;
+            
+            const teacher = db.users.find(u => u.id === videoClass.teacherId);
+            
+            document.getElementById('app').innerHTML = `
+                <div class="bg-white p-4 rounded-2xl shadow">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold flex items-center"><i class="fas fa-video mr-2 text-purple-600"></i> ${escapeHtml(videoClass.title)}</h3>
+                        <div>
+                            <button class="px-3 py-1 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="renderTeacherDashboard()"><i class="fas fa-arrow-left mr-1"></i> Back</button>
+                        </div>
+                    </div>
+                    <div class="mt-4 grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold mb-2">क्लास विवरण</h4>
+                            <div class="text-sm text-gray-700">
+                                <div>शिक्षक: ${teacher ? teacher.name : 'Unknown'}</div>
+                                <div>शेड्यूल्ड समय: ${formatDateTime(videoClass.scheduledTime)}</div>
+                                <div>अवधि: ${videoClass.duration} मिनट</div>
+                                <div>स्थिति: <span class="status-badge status-${videoClass.status}">${getStatusText(videoClass.status)}</span></div>
+                                ${videoClass.endedAt ? `<div>समाप्त: ${formatDateTime(videoClass.endedAt)}</div>` : ''}
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2">प्रतिभागी (${videoClass.participants ? videoClass.participants.length : 0})</h4>
+                            <div class="space-y-2 max-h-60 overflow-y-auto">
+                                ${videoClass.participants && videoClass.participants.length > 0 ? videoClass.participants.map(p => {
+                                    const user = db.users.find(u => u.id === p.userId);
+                                    return `
+                                        <div class="p-2 border rounded flex justify-between items-center">
+                                            <div>${user.name} (${user.role})</div>
+                                            <div class="text-xs">
+                                                ${p.audioEnabled ? '<i class="fas fa-microphone text-green-600"></i>' : '<i class="fas fa-microphone-slash text-red-600"></i>'}
+                                                ${p.videoEnabled ? '<i class="fas fa-video text-green-600 ml-1"></i>' : '<i class="fas fa-video-slash text-red-600 ml-1"></i>'}
+                                                ${p.canSpeak ? '<i class="fas fa-comment text-green-600 ml-1"></i>' : '<i class="fas fa-comment-slash text-red-600 ml-1"></i>'}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('') : '<div class="text-gray-500 text-sm">अभी तक कोई प्रतिभागी नहीं है</div>'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        ${videoClass.status !== 'completed' ? `
+                            <button class="px-4 py-2 rounded bg-purple-600 text-white flex items-center hover:bg-purple-700 transition-colors" onclick="joinVideoClassAsTeacher('${videoClassId}')">
+                                <i class="fas fa-play mr-1"></i> क्लास में शामिल हों
+                            </button>
+                        ` : `
+                            <div class="text-gray-500">यह क्लास समाप्त हो चुकी है</div>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderVideoClassRoom(videoClassId, isTeacher = false) {
+            const db = DB.load();
+            const me = Auth.me();
+            const videoClass = db.videoClasses.find(vc => vc.id === videoClassId);
+            if (!videoClass) return;
+            
+            document.getElementById('app').innerHTML = `
+                <div class="bg-white p-4 rounded-2xl shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold flex items-center"><i class="fas fa-video mr-2 text-purple-600"></i> ${escapeHtml(videoClass.title)}</h3>
+                        <div class="flex items-center gap-2">
+                            <div id="speechStatus" class="flex items-center text-sm text-gray-600 hidden">
+                                <span>Speech recognition</span>
+                                <span class="speech-indicator"></span>
+                            </div>
+                            ${isTeacher ? `
+                                <button id="endClassBtn" class="px-3 py-1 rounded bg-red-600 text-white flex items-center hover:bg-red-700 transition-colors" onclick="endVideoClass('${videoClassId}')">
+                                    <i class="fas fa-stop mr-1"></i> End Class
+                                </button>
+                            ` : ''}
+                            <button class="px-3 py-1 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="${isTeacher ? 'renderTeacherDashboard()' : 'renderStudentDashboard()'}"><i class="fas fa-times mr-1"></i> Exit</button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2">
+                            <div class="video-container">
+                                <div id="localVideo" class="w-full h-full flex items-center justify-center bg-gray-900 text-white">
+                                    <div class="text-center">
+                                        <i class="fas fa-user-circle text-6xl mb-2"></i>
+                                        <div>${me.name}</div>
+                                        <div class="text-sm">(${me.role})</div>
+                                    </div>
+                                </div>
+                                <div class="video-controls">
+                                    <button id="toggleAudio"><i class="fas fa-microphone"></i></button>
+                                    <button id="toggleVideo"><i class="fas fa-video"></i></button>
+                                    ${isTeacher ? `
+                                        <button id="toggleSpeech"><i class="fas fa-microphone-alt"></i></button>
+                                        <button id="toggleBoard"><i class="fas fa-chalkboard"></i></button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            
+                            <div class="participant-grid" id="participantGrid">
+                                <!-- Participants will be added here dynamically -->
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-2xl">
+                            <h4 class="font-semibold mb-3 flex items-center"><i class="fas fa-users mr-2"></i> प्रतिभागी</h4>
+                            <div class="space-y-2 max-h-60 overflow-y-auto" id="participantList">
+                                ${videoClass.participants && videoClass.participants.length > 0 ? videoClass.participants.map(p => {
+                                    const user = db.users.find(u => u.id === p.userId);
+                                    return `
+                                        <div class="p-2 border rounded flex justify-between items-center">
+                                            <div>${user.name} (${user.role})</div>
+                                            <div class="text-xs">
+                                                ${p.audioEnabled ? '<i class="fas fa-microphone text-green-600"></i>' : '<i class="fas fa-microphone-slash text-red-600"></i>'}
+                                                ${p.videoEnabled ? '<i class="fas fa-video text-green-600 ml-1"></i>' : '<i class="fas fa-video-slash text-red-600 ml-1"></i>'}
+                                                ${p.canSpeak ? '<i class="fas fa-comment text-green-600 ml-1"></i>' : '<i class="fas fa-comment-slash text-red-600 ml-1"></i>'}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('') : '<div class="text-gray-500 text-sm">कोई प्रतिभागी नहीं</div>'}
+                            </div>
+                            
+                            ${isTeacher ? `
+                            <div class="mt-4">
+                                <h4 class="font-semibold mb-2">छात्र अनुमतियाँ</h4>
+                                <div class="space-y-2 max-h-40 overflow-y-auto" id="studentPermissions">
+                                    ${videoClass.participants && videoClass.participants.length > 0 ? videoClass.participants.filter(p => {
+                                        const user = db.users.find(u => u.id === p.userId);
+                                        return user.role === 'student';
+                                    }).map(p => {
+                                        const user = db.users.find(u => u.id === p.userId);
+                                        return `
+                                            <div class="p-2 border rounded flex justify-between items-center">
+                                                <div>${user.name}</div>
+                                                <div class="flex gap-1">
+                                                    <button class="permission-btn ${p.canSpeak ? 'active' : 'inactive'}" onclick="toggleStudentPermission('${videoClassId}', '${user.id}', 'canSpeak', ${!p.canSpeak})">
+                                                        <i class="fas fa-comment${p.canSpeak ? '' : '-slash'}"></i>
+                                                    </button>
+                                                    <button class="permission-btn ${p.audioEnabled ? 'active' : 'inactive'}" onclick="toggleStudentPermission('${videoClassId}', '${user.id}', 'audioEnabled', ${!p.audioEnabled})">
+                                                        <i class="fas fa-microphone${p.audioEnabled ? '' : '-slash'}"></i>
+                                                    </button>
+                                                    <button class="permission-btn ${p.videoEnabled ? 'active' : 'inactive'}" onclick="toggleStudentPermission('${videoClassId}', '${user.id}', 'videoEnabled', ${!p.videoEnabled})">
+                                                        <i class="fas fa-video${p.videoEnabled ? '' : '-slash'}"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('') : '<div class="text-gray-500 text-sm">कोई छात्र नहीं</div>'}
+                                </div>
+                            </div>
+                            ` : ''}
+                            
+                            <div class="mt-4 ${isTeacher ? '' : 'hidden'}" id="digitalBoardSection">
+                                <h4 class="font-semibold mb-2 flex items-center"><i class="fas fa-chalkboard mr-2"></i> डिजिटल बोर्ड</h4>
+                                <textarea id="digitalBoard" class="digital-board" placeholder="यहाँ टाइप करें या स्पीच रिकग्निशन का उपयोग करें..." oninput="updateDigitalBoard('${videoClassId}', this.value)">${videoClass.digitalBoard || ''}</textarea>
+                                <div class="mt-2 text-xs text-gray-500">आप जो टाइप करते हैं या बोलते हैं वह सभी छात्रों को दिखाई देगा</div>
+                            </div>
+                            
+                            ${!isTeacher ? `
+                            <div class="mt-4">
+                                <h4 class="font-semibold mb-2 flex items-center"><i class="fas fa-chalkboard mr-2"></i> डिजिटल बोर्ड</h4>
+                                <div id="studentDigitalBoard" class="digital-board-view">${videoClass.digitalBoard || 'शिक्षक का बोर्ड यहाँ दिखाई देगा...'}</div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Initialize video room functionality
+            initVideoRoom(videoClassId, isTeacher);
+            
+            // Start polling for updates
+            if (window.videoClassPoller) {
+                clearInterval(window.videoClassPoller);
+            }
+            
+            window.videoClassPoller = setInterval(() => {
+                updateVideoClassUI(videoClassId, isTeacher);
+            }, 3000);
+        }
+
+        function initVideoRoom(videoClassId, isTeacher) {
+            const me = Auth.me();
+            const db = DB.load();
+            const videoClass = db.videoClasses.find(vc => vc.id === videoClassId);
+            if (!videoClass) return;
+            
+            const participant = videoClass.participants.find(p => p.userId === me.id);
+            if (!participant) return;
+            
+            // Set initial state for buttons
+            const toggleAudioBtn = document.getElementById('toggleAudio');
+            const toggleVideoBtn = document.getElementById('toggleVideo');
+            
+            if (toggleAudioBtn) {
+                toggleAudioBtn.innerHTML = participant.audioEnabled ? '<i class="fas fa-microphone"></i>' : '<i class="fas fa-microphone-slash"></i>';
+                toggleAudioBtn.classList.toggle('active', participant.audioEnabled);
+            }
+            
+            if (toggleVideoBtn) {
+                toggleVideoBtn.innerHTML = participant.videoEnabled ? '<i class="fas fa-video"></i>' : '<i class="fas fa-video-slash"></i>';
+                toggleVideoBtn.classList.toggle('active', participant.videoEnabled);
+            }
+            
+            // Toggle audio button
+            if (toggleAudioBtn) {
+                toggleAudioBtn.addEventListener('click', function() {
+                    const db = DB.load();
+                    const videoClass = db.videoClasses.find(vc => vc.id === videoClassId);
+                    if (videoClass) {
+                        const participant = videoClass.participants.find(p => p.userId === me.id);
+                        if (participant) {
+                            participant.audioEnabled = !participant.audioEnabled;
+                            DB.save(db);
+                            this.innerHTML = participant.audioEnabled ? '<i class="fas fa-microphone"></i>' : '<i class="fas fa-microphone-slash"></i>';
+                            this.classList.toggle('active', participant.audioEnabled);
+                        }
+                    }
+                });
+            }
+            
+            // Toggle video button
+            if (toggleVideoBtn) {
+                toggleVideoBtn.addEventListener('click', function() {
+                    const db = DB.load();
+                    const videoClass = db.videoClasses.find(vc => vc.id === videoClassId);
+                    if (videoClass) {
+                        const participant = videoClass.participants.find(p => p.userId === me.id);
+                        if (participant) {
+                            participant.videoEnabled = !participant.videoEnabled;
+                            DB.save(db);
+                            this.innerHTML = participant.videoEnabled ? '<i class="fas fa-video"></i>' : '<i class="fas fa-video-slash"></i>';
+                            this.classList.toggle('active', participant.videoEnabled);
+                        }
+                    }
+                });
+            }
+            
+            // Toggle speech recognition (for teachers)
+            const toggleSpeechBtn = document.getElementById('toggleSpeech');
+            if (toggleSpeechBtn) {
+                toggleSpeechBtn.addEventListener('click', function() {
+                    if (!window.speechRecognitionActive) {
+                        startSpeechRecognition(videoClassId);
+                        this.innerHTML = '<i class="fas fa-microphone-alt-slash"></i>';
+                        this.classList.add('active');
+                        document.getElementById('speechStatus').classList.remove('hidden');
+                        document.querySelector('.speech-indicator').classList.add('speech-active');
+                    } else {
+                        stopSpeechRecognition();
+                        this.innerHTML = '<i class="fas fa-microphone-alt"></i>';
+                        this.classList.remove('active');
+                        document.getElementById('speechStatus').classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Toggle digital board (for teachers)
+            if (isTeacher) {
+                const toggleBoardBtn = document.getElementById('toggleBoard');
+                if (toggleBoardBtn) {
+                    toggleBoardBtn.addEventListener('click', function() {
+                        const boardSection = document.getElementById('digitalBoardSection');
+                        boardSection.classList.toggle('hidden');
+                    });
+                }
+            }
+        }
+
+        function toggleStudentPermission(videoClassId, studentId, permission, value) {
+            App.updateParticipantPermission(videoClassId, studentId, { [permission]: value });
+            updateVideoClassUI(videoClassId, true);
+        }
+
+        function updateVideoClassUI(videoClassId, isTeacher) {
+            const db = DB.load();
+            const videoClass = db.videoClasses.find(vc => vc.id === videoClassId);
+            if (!videoClass) return;
+            
+            const me = Auth.me();
+            
+            // Update participant list
+            const participantList = document.getElementById('participantList');
+            if (participantList) {
+                participantList.innerHTML = videoClass.participants && videoClass.participants.length > 0 ? videoClass.participants.map(p => {
+                    const user = db.users.find(u => u.id === p.userId);
+                    return `
+                        <div class="p-2 border rounded flex justify-between items-center">
+                            <div>${user.name} (${user.role})</div>
+                            <div class="text-xs">
+                                ${p.audioEnabled ? '<i class="fas fa-microphone text-green-600"></i>' : '<i class="fas fa-microphone-slash text-red-600"></i>'}
+                                ${p.videoEnabled ? '<i class="fas fa-video text-green-600 ml-1"></i>' : '<i class="fas fa-video-slash text-red-600 ml-1"></i>'}
+                                ${p.canSpeak ? '<i class="fas fa-comment text-green-600 ml-1"></i>' : '<i class="fas fa-comment-slash text-red-600 ml-1"></i>'}
+                            </div>
+                        </div>
+                    `;
+                }).join('') : '<div class="text-gray-500 text-sm">कोई प्रतिभागी नहीं</div>';
+            }
+            
+            // Update student permissions list for teachers
+            if (isTeacher) {
+                const studentPermissions = document.getElementById('studentPermissions');
+                if (studentPermissions) {
+                    studentPermissions.innerHTML = videoClass.participants && videoClass.participants.length > 0 ? videoClass.participants.filter(p => {
+                        const user = db.users.find(u => u.id === p.userId);
+                        return user.role === 'student';
+                    }).map(p => {
+                        const user = db.users.find(u => u.id === p.userId);
+                        return `
+                            <div class="p-2 border rounded flex justify-between items-center">
+                                <div>${user.name}</div>
+                                <div class="flex gap-1">
+                                    <button class="permission-btn ${p.canSpeak ? 'active' : 'inactive'}" onclick="toggleStudentPermission('${videoClassId}', '${user.id}', 'canSpeak', ${!p.canSpeak})">
+                                        <i class="fas fa-comment${p.canSpeak ? '' : '-slash'}"></i>
+                                    </button>
+                                    <button class="permission-btn ${p.audioEnabled ? 'active' : 'inactive'}" onclick="toggleStudentPermission('${videoClassId}', '${user.id}', 'audioEnabled', ${!p.audioEnabled})">
+                                        <i class="fas fa-microphone${p.audioEnabled ? '' : '-slash'}"></i>
+                                    </button>
+                                    <button class="permission-btn ${p.videoEnabled ? 'active' : 'inactive'}" onclick="toggleStudentPermission('${videoClassId}', '${user.id}', 'videoEnabled', ${!p.videoEnabled})">
+                                        <i class="fas fa-video${p.videoEnabled ? '' : '-slash'}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('') : '<div class="text-gray-500 text-sm">कोई छात्र नहीं</div>';
+                }
+            }
+            
+            // Update digital board for students
+            if (!isTeacher) {
+                const studentDigitalBoard = document.getElementById('studentDigitalBoard');
+                if (studentDigitalBoard) {
+                    studentDigitalBoard.textContent = videoClass.digitalBoard || 'शिक्षक का बोर्ड यहाँ दिखाई देगा...';
+                }
+            }
+            
+            // Update participant grid with video elements
+            const participantGrid = document.getElementById('participantGrid');
+            if (participantGrid) {
+                participantGrid.innerHTML = '';
+                
+                if (videoClass.participants && videoClass.participants.length > 0) {
+                    videoClass.participants.forEach(p => {
+                        if (p.userId !== me.id && p.videoEnabled) {
+                            const user = db.users.find(u => u.id === p.userId);
+                            const participantCard = document.createElement('div');
+                            participantCard.className = 'participant-card';
+                            participantCard.innerHTML = `
+                                <div class="participant-video">
+                                    <div class="text-center">
+                                        <i class="fas fa-user-circle text-4xl mb-1"></i>
+                                        <div class="text-sm">${user.name}</div>
+                                    </div>
+                                </div>
+                                <div class="participant-name">${user.name}</div>
+                                <div class="participant-controls">
+                                    ${p.audioEnabled ? '<i class="fas fa-microphone text-green-600"></i>' : '<i class="fas fa-microphone-slash text-red-600"></i>'}
+                                    ${p.videoEnabled ? '<i class="fas fa-video text-green-600"></i>' : '<i class="fas fa-video-slash text-red-600"></i>'}
+                                </div>
+                            `;
+                            participantGrid.appendChild(participantCard);
+                        }
+                    });
+                }
+            }
+            
+            // Check if class has ended
+            if (videoClass.status === 'completed') {
+                showAlert('यह क्लास समाप्त हो चुकी है', 'info');
+                if (isTeacher) {
+                    renderTeacherDashboard();
+                } else {
+                    renderStudentDashboard();
+                }
+                if (window.videoClassPoller) {
+                    clearInterval(window.videoClassPoller);
+                }
+            }
+        }
+
+        function updateDigitalBoard(videoClassId, text) {
+            App.updateDigitalBoard(videoClassId, text);
+        }
+
+        function endVideoClass(videoClassId) {
+            App.endVideoClass(videoClassId);
+            if (window.videoClassPoller) {
+                clearInterval(window.videoClassPoller);
+            }
+            renderTeacherDashboard();
+        }
+
+        // Speech recognition functionality
+        let recognition = null;
+        window.speechRecognitionActive = false;
+
+        function startSpeechRecognition(videoClassId) {
+            if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'hi-IN'; // Hindi language
+
+                recognition.onresult = function(event) {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+
+                    // Update digital board
+                    const digitalBoard = document.getElementById('digitalBoard');
+                    if (digitalBoard) {
+                        digitalBoard.value = finalTranscript + interimTranscript;
+                        updateDigitalBoard(videoClassId, digitalBoard.value);
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error', event.error);
+                    stopSpeechRecognition();
+                };
+
+                recognition.start();
+                window.speechRecognitionActive = true;
+            } else {
+                showAlert('आपका ब्राउज़र स्पीच रिकग्निशन का समर्थन नहीं करता है', 'error');
+            }
+        }
+
+        function stopSpeechRecognition() {
+            if (recognition) {
+                recognition.stop();
+            }
+            window.speechRecognitionActive = false;
+            
+            const toggleSpeechBtn = document.getElementById('toggleSpeech');
+            if (toggleSpeechBtn) {
+                toggleSpeechBtn.innerHTML = '<i class="fas fa-microphone-alt"></i>';
+                toggleSpeechBtn.classList.remove('active');
+            }
+            
+            const speechStatus = document.getElementById('speechStatus');
+            if (speechStatus) {
+                speechStatus.classList.add('hidden');
+            }
+        }
+
+        // Student Dashboard
+        function renderStudentDashboard() { 
+            const me = Auth.me(); 
+            if (!me || me.role !== 'student') return render(); 
+            const db = DB.load(); 
+            const hws = App.findHomeworksForStudent(me);
+            const videoClasses = db.videoClasses ? db.videoClasses.filter(vc => vc.school === me.school && (vc.status === 'ongoing' || vc.status === 'scheduled')) : [];
+            const quizzes = db.quizzes ? App.findQuizzesForStudent(me) : [];
+            const quizProgress = App.getQuizProgress(me.id);
+            
+            document.getElementById('app').innerHTML = `
+                <div class="grid md:grid-cols-3 gap-4">
+                    <section class="md:col-span-2 bg-white p-4 rounded-2xl shadow">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xl font-bold flex items-center"><i class="fas fa-user-graduate mr-2 text-blue-600"></i> Student Dashboard</h2>
+                            <div class="text-sm text-gray-600 flex items-center"><i class="fas fa-school mr-1"></i> ${me.school} — Roll: ${me.rollNo || '—'}</div>
+                        </div>
+
+                        <div class="mt-6">
+                            <h3 class="font-semibold text-lg flex items-center mb-3"><i class="fas fa-video mr-2 text-purple-600"></i> वीडियो क्लासेस</h3>
+                            <div class="grid md:grid-cols-2 gap-3">
+                                ${videoClasses.length > 0 ? videoClasses.map(vc => {
+                                    const teacher = db.users.find(u => u.id === vc.teacherId);
+                                    return `
+                                        <div class="border p-3 rounded-2xl video-class-card ${vc.status === 'ongoing' ? 'bg-blue-50 border-blue-200' : vc.status === 'completed' ? 'bg-gray-50 border-gray-200' : 'bg-white'}">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <b>${escapeHtml(vc.title)}</b>
+                                                    <div class="text-xs text-gray-500">${teacher ? teacher.name : 'Teacher'}</div>
+                                                </div>
+                                                <span class="status-badge status-${vc.status}">${getStatusText(vc.status)}</span>
+                                            </div>
+                                            <div class="mt-2 text-sm text-gray-700">${formatDateTime(vc.scheduledTime)}</div>
+                                            <div class="mt-3">
+                                                ${vc.status === 'ongoing' ? `
+                                                    <button class="px-3 py-1 rounded bg-purple-600 text-white flex items-center hover:bg-purple-700 transition-colors w-full justify-center" onclick="joinVideoClassAsStudent('${vc.id}')">
+                                                        <i class="fas fa-play mr-1"></i> Join Class
+                                                    </button>
+                                                ` : vc.status === 'scheduled' ? `
+                                                    <div class="text-center text-sm text-gray-500">शुरू होने का इंतज़ार कर रहा है</div>
+                                                ` : `
+                                                    <div class="text-center text-sm text-gray-500">समाप्त</div>
+                                                `}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('') : '<div class="text-center py-4 text-gray-500 col-span-2">कोई वीडियो क्लास नहीं है</div>'}
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <h3 class="font-semibold text-lg flex items-center mb-3"><i class="fas fa-question-circle mr-2 text-green-600"></i> मेरी क्विज़</h3>
+                            <div class="grid md:grid-cols-2 gap-3">
+                                ${quizzes.length > 0 ? quizzes.map(quiz => {
+                                    const mySub = quiz.submissions.find(s => s.studentId === me.id);
+                                    const isOverdue = quiz.dueDate && new Date(quiz.dueDate) < new Date();
+                                    const teacher = db.users.find(u => u.id === quiz.teacherId);
+                                    
+                                    return `
+                                        <div class="border p-3 rounded-2xl video-class-card ${isOverdue && !mySub ? 'border-red-300 bg-red-50' : ''}">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <b>${escapeHtml(quiz.title)}</b>
+                                                    <div class="text-xs text-gray-500">${teacher ? teacher.name : 'Teacher'}</div>
+                                                </div>
+                                                <div class="text-sm ${mySub ? 'text-green-600' : isOverdue ? 'text-red-600' : 'text-blue-600'}">
+                                                    ${mySub ? '<i class="fas fa-check-circle"></i> Submitted' : isOverdue ? '<i class="fas fa-exclamation-circle"></i> Overdue' : '<i class="fas fa-clock"></i> Pending'}
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 text-sm text-gray-700">${quiz.questions.length} प्रश्न</div>
+                                            ${quiz.dueDate ? `
+                                                <div class="mt-1 text-xs ${isOverdue ? 'text-red-600' : 'text-gray-500'}">
+                                                    Due: ${formatDate(quiz.dueDate)} ${isOverdue ? '(Overdue)' : ''}
+                                                </div>
+                                            ` : ''}
+                                            ${mySub ? `
+                                                <div class="mt-2 text-sm font-semibold ${mySub.percentage >= 70 ? 'text-green-600' : mySub.percentage >= 40 ? 'text-yellow-600' : 'text-red-600'}">
+                                                    Score: ${mySub.score}/${mySub.total} (${mySub.percentage}%)
+                                                </div>
+                                            ` : ''}
+                                            <div class="mt-3">
+                                                ${!mySub ? `
+                                                    <button class="px-3 py-1 rounded bg-green-600 text-white flex items-center hover:bg-green-700 transition-colors w-full justify-center" onclick="takeQuiz('${quiz.id}')">
+                                                        <i class="fas fa-play mr-1"></i> Take Quiz
+                                                    </button>
+                                                ` : `
+                                                    <button class="px-3 py-1 rounded border flex items-center hover:bg-gray-50 transition-colors w-full justify-center" onclick="viewQuizResult('${quiz.id}')">
+                                                        <i class="fas fa-eye mr-1"></i> View Result
+                                                    </button>
+                                                `}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('') : '<div class="text-center py-4 text-gray-500 col-span-2">कोई क्विज नहीं है</div>'}
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <h3 class="font-semibold text-lg flex items-center mb-3"><i class="fas fa-book-open mr-2 text-blue-600"></i> मेरे होमवर्क</h3>
+                            <div class="mt-4 space-y-3">
+                                ${hws.length > 0 ? hws.map(hw => {
+                                    const mySub = hw.submissions.find(s => s.studentId === me.id);
+                                    const isOverdue = hw.dueDate && new Date(hw.dueDate) < new Date();
+                                    
+                                    return `
+                                        <div class="border p-3 rounded-2xl hover:shadow-md transition-shadow ${isOverdue && !mySub ? 'border-red-300 bg-red-50' : ''} card-hover">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <b>${escapeHtml(hw.title)}</b>
+                                                    <div class="text-xs text-gray-500">${hw.school} ${hw.rollNo ? ('/ Roll: ' + hw.rollNo) : ''}</div>
+                                                </div>
+                                                <div class="text-sm ${mySub ? 'text-green-600' : isOverdue ? 'text-red-600' : 'text-blue-600'}">
+                                                    ${mySub ? '<i class="fas fa-check-circle"></i> Submitted' : isOverdue ? '<i class="fas fa-exclamation-circle"></i> Overdue' : '<i class="fas fa-clock"></i> Pending'}
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 text-sm text-gray-700">${escapeHtml(hw.desc || '')}</div>
+                                            ${hw.image ? `<div class="mt-2"><img src="${hw.image}" class="image-preview" alt="Homework Image"></div>` : ''}
+                                            ${hw.dueDate ? `
+                                                <div class="mt-1 text-xs ${isOverdue ? 'text-red-600' : 'text-gray-500'}">
+                                                    Due: ${formatDate(hw.dueDate)} ${isOverdue ? '(Overdue)' : ''}
+                                                </div>
+                                            ` : ''}
+                                            ${mySub && mySub.marks !== null ? `
+                                                <div class="mt-2 text-sm font-semibold text-green-600">
+                                                    <i class="fas fa-star"></i> Marks: ${mySub.marks}${mySub.feedback ? ` | Feedback: ${escapeHtml(mySub.feedback)}` : ''}
+                                                </div>
+                                            ` : ''}
+                                            <div class="mt-3 flex gap-2">
+                                                <button class="px-3 py-1 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="openSubmit('${hw.id}')"><i class="fas fa-edit mr-1"></i> Open</button>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('') : '<div class="text-center py-8 text-gray-500"><i class="fas fa-book-open text-3xl mb-2"></i><p>कोई होमवर्क नहीं है। कृपया बाद में पुनः जांचें।</p></div>'}
+                            </div>
+                        </div>
+                    </section>
+
+                    <aside class="bg-white p-4 rounded-2xl shadow h-fit sticky top-20">
+                        <h3 class="font-bold flex items-center"><i class="fas fa-chart-line mr-2 text-blue-600"></i> My Progress</h3>
+                        <div class="mt-4 space-y-2">
+                            <div class="flex justify-between"><span>Total Assigned:</span> <span class="font-semibold">${hws.length}</span></div>
+                            <div class="flex justify-between"><span>Submitted:</span> <span class="font-semibold text-green-600">${hws.filter(h => h.submissions.some(s => s.studentId === me.id)).length}</span></div>
+                            <div class="flex justify-between"><span>Pending:</span> <span class="font-semibold text-blue-600">${hws.filter(h => !h.submissions.some(s => s.studentId === me.id)).length}</span></div>
+                            <div class="flex justify-between"><span>Overdue:</span> <span class="font-semibold text-red-600">${hws.filter(h => h.dueDate && new Date(h.dueDate) < new Date() && !h.submissions.some(s => s.studentId === me.id)).length}</span></div>
+                            <div class="flex justify-between"><span>Graded:</span> <span class="font-semibold">${hws.filter(h => {const sub = h.submissions.find(s => s.studentId === me.id); return sub && sub.marks !== null;}).length}</span></div>
+                            <div class="flex justify-between"><span>Total Quizzes:</span> <span class="font-semibold">${quizzes.length}</span></div>
+                            <div class="flex justify-between"><span>Quizzes Submitted:</span> <span class="font-semibold">${quizProgress ? quizProgress.submitted : 0}</span></div>
+                            <div class="flex justify-between"><span>Quiz Average:</span> <span class="font-semibold">${quizProgress ? quizProgress.average : 0}%</span></div>
+                            <div class="flex justify-between"><span>Video Classes:</span> <span class="font-semibold">${videoClasses.length}</span></div>
+                        </div>
+                    </aside>
+                </div>
+            `;
+        }
+
+        function takeQuiz(quizId) {
+            const db = DB.load();
+            const quiz = db.quizzes.find(q => q.id === quizId);
+            if (!quiz) return;
+            
+            document.getElementById('app').innerHTML = `
+                <div class="bg-white p-4 rounded-2xl shadow quiz-container">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold flex items-center"><i class="fas fa-question-circle mr-2 text-green-600"></i> ${escapeHtml(quiz.title)}</h3>
+                        <div class="quiz-stats">
+                            <div class="quiz-stat-box">
+                                <div class="text-sm">प्रश्न</div>
+                                <div class="font-bold"><span id="currentQuestion">1</span>/${quiz.questions.length}</div>
+                            </div>
+                            <div class="quiz-stat-box">
+                                <div class="text-sm">समय</div>
+                                <div class="font-bold" id="quizTimer">--:--</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4 text-gray-700">${escapeHtml(quiz.description || '')}</div>
+                    
+                    <form id="quizForm">
+                        <div id="questionsContainer">
+                            ${quiz.questions.map((question, index) => `
+                                <div class="quiz-question ${index === 0 ? '' : 'hide'}" id="question-${index}">
+                                    <div class="font-medium text-lg mb-3">${index + 1}. ${escapeHtml(question.question)}</div>
+                                    <div class="space-y-2">
+                                        ${question.options.map((option, optIndex) => `
+                                            <label class="quiz-option">
+                                                <input type="radio" name="q${index}" value="${optIndex}" class="hidden">
+                                                <span>${String.fromCharCode(65 + optIndex)}. ${escapeHtml(option)}</span>
+                                            </label>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="flex justify-between mt-6">
+                            <button type="button" id="prevBtn" class="px-4 py-2 rounded border hover:bg-gray-50 transition-colors hide" onclick="prevQuestion()">
+                                <i class="fas fa-arrow-left mr-1"></i> Previous
+                            </button>
+                            <button type="button" id="nextBtn" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors" onclick="nextQuestion()">
+                                Next <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                            <button type="button" id="submitBtn" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 transition-colors hide" onclick="submitQuiz('${quizId}')">
+                                Submit <i class="fas fa-check ml-1"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            // Initialize quiz
+            initQuiz(quiz);
+        }
+
+        function initQuiz(quiz) {
+            let currentQuestion = 0;
+            const totalQuestions = quiz.questions.length;
+            const answers = Array(totalQuestions).fill(null);
+            
+            // Set up option selection
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options in this question
+                    this.parentNode.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Get the input and mark it as checked
+                    const input = this.querySelector('input');
+                    input.checked = true;
+                    
+                    // Store the answer
+                    const questionIndex = parseInt(input.name.replace('q', ''));
+                    answers[questionIndex] = parseInt(input.value);
+                });
+            });
+            
+            // Set up navigation
+            window.nextQuestion = function() {
+                if (currentQuestion < totalQuestions - 1) {
+                    document.getElementById(`question-${currentQuestion}`).classList.add('hide');
+                    currentQuestion++;
+                    document.getElementById(`question-${currentQuestion}`).classList.remove('hide');
+                    document.getElementById('currentQuestion').textContent = currentQuestion + 1;
+                    
+                    // Show previous button
+                    document.getElementById('prevBtn').classList.remove('hide');
+                    
+                    // Show submit button if last question
+                    if (currentQuestion === totalQuestions - 1) {
+                        document.getElementById('nextBtn').classList.add('hide');
+                        document.getElementById('submitBtn').classList.remove('hide');
+                    }
+                }
+            };
+            
+            window.prevQuestion = function() {
+                if (currentQuestion > 0) {
+                    document.getElementById(`question-${currentQuestion}`).classList.add('hide');
+                    currentQuestion--;
+                    document.getElementById(`question-${currentQuestion}`).classList.remove('hide');
+                    document.getElementById('currentQuestion').textContent = currentQuestion + 1;
+                    
+                    // Hide previous button if first question
+                    if (currentQuestion === 0) {
+                        document.getElementById('prevBtn').classList.add('hide');
+                    }
+                    
+                    // Show next button
+                    document.getElementById('nextBtn').classList.remove('hide');
+                    document.getElementById('submitBtn').classList.add('hide');
+                }
+            };
+            
+            window.submitQuiz = function(quizId) {
+                // Check if all questions are answered
+                if (answers.includes(null)) {
+                    showAlert('कृपया सभी प्रश्नों के उत्तर दें', 'error');
+                    return;
+                }
+                
+                try {
+                    const submission = App.submitQuiz(quizId, answers);
+                    showAlert(`क्विज सफलतापूर्वक जमा कर दी गई! आपका स्कोर: ${submission.score}/${submission.total} (${submission.percentage}%)`, 'success');
+                    renderStudentDashboard();
+                } catch (err) {
+                    showAlert(err.message, 'error');
+                }
+            };
+            
+            // Start timer (optional)
+            let timeLeft = 20 * 60; // 20 minutes
+            const timer = document.getElementById('quizTimer');
+            
+            const countdown = setInterval(function() {
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    timer.textContent = '00:00';
+                    // Auto submit when time is up
+                    if (!answers.includes(null)) {
+                        submitQuiz(quiz.id);
+                    }
+                } else {
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    timeLeft--;
+                }
+            }, 1000);
+        }
+
+        function viewQuizResult(quizId) {
+            const db = DB.load();
+            const quiz = db.quizzes.find(q => q.id === quizId);
+            const me = Auth.me();
+            
+            if (!quiz) return;
+            
+            const submission = quiz.submissions.find(s => s.studentId === me.id);
+            if (!submission) return;
+            
+            document.getElementById('app').innerHTML = `
+                <div class="bg-white p-4 rounded-2xl shadow quiz-container">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold flex items-center"><i class="fas fa-question-circle mr-2 text-green-600"></i> ${escapeHtml(quiz.title)} - Result</h3>
+                        <button class="px-3 py-1 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="renderStudentDashboard()"><i class="fas fa-arrow-left mr-1"></i> Back</button>
+                    </div>
+                    
+                    <div class="text-center mb-6">
+                        <div class="text-4xl font-bold ${submission.percentage >= 70 ? 'text-green-600' : submission.percentage >= 40 ? 'text-yellow-600' : 'text-red-600'}">
+                            ${submission.percentage}%
+                        </div>
+                        <div class="text-gray-600">Score: ${submission.score}/${submission.total}</div>
+                        <div class="text-sm text-gray-500">Submitted on: ${formatDateTime(submission.submittedAt)}</div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        ${quiz.questions.map((question, index) => {
+                            const userAnswer = submission.answers[index];
+                            const isCorrect = userAnswer === question.correctAnswer;
+                            
+                            return `
+                                <div class="quiz-question ${isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}">
+                                    <div class="font-medium text-lg mb-3">${index + 1}. ${escapeHtml(question.question)}</div>
+                                    <div class="space-y-2">
+                                        ${question.options.map((option, optIndex) => {
+                                            let optionClass = '';
+                                            if (optIndex === question.correctAnswer) {
+                                                optionClass = 'correct';
+                                            } else if (optIndex === userAnswer && !isCorrect) {
+                                                optionClass = 'incorrect';
+                                            }
+                                            
+                                            return `
+                                                <div class="quiz-option ${optionClass}">
+                                                    ${String.fromCharCode(65 + optIndex)}. ${escapeHtml(option)}
+                                                    ${optIndex === question.correctAnswer ? ' <i class="fas fa-check text-green-600"></i>' : ''}
+                                                    ${optIndex === userAnswer && !isCorrect ? ' <i class="fas fa-times text-red-600"></i>' : ''}
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                    <div class="mt-2 text-sm ${isCorrect ? 'text-green-600' : 'text-red-600'}">
+                                        Your answer: ${userAnswer !== null ? String.fromCharCode(65 + userAnswer) : 'Not answered'} 
+                                        ${isCorrect ? '(Correct)' : '(Incorrect)'}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function joinVideoClassAsStudent(videoClassId) {
+            try {
+                const videoClass = App.joinVideoClass(videoClassId);
+                renderVideoClassRoom(videoClassId, false);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        }
+
+        // Homework submission functions (existing code)
+        function renderCreateHomework() { 
+            const me = Auth.me(); 
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('app').innerHTML = `
+            <div class="bg-white p-6 rounded-2xl shadow max-w-2xl mx-auto card-hover">
+                <h2 class="text-xl font-bold flex items-center"><i class="fas fa-plus-circle mr-2 text-blue-600"></i> नया Homework बनाएँ</h2>
+                <form id="hwForm" class="mt-4 grid gap-3">
+                    <input name="title" placeholder="शीर्षक" class="p-2 border rounded" required />
+                    <textarea name="desc" placeholder="विवरण" class="p-2 border rounded" rows="4"></textarea>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">होमवर्क इमेज (वैकल्पिक)</label>
+                        <input type="file" id="hwImage" accept="image/*" class="p-2 border rounded w-full" />
+                        <div id="imagePreview" class="mt-2"></div>
+                    </div>
+                    
+                    <input name="school" placeholder="विद्यालय" class="p-2 border rounded" value="${me.school || ''}" />
+                    <input name="rollNo" placeholder="विशेष रोल नंबर दें (वैकल्पिक) - eg: 101" class="p-2 border rounded" />
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Due Date (वैकल्पिक)</label>
+                        <input name="dueDate" type="date" min="${today}" class="p-2 border rounded w-full" />
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white flex items-center hover:bg-blue-700 transition-colors"><i class="fas fa-save mr-1"></i> Create</button>
+                        <button type="button" class="px-4 py-2 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="renderTeacherDashboard()"><i class="fas fa-times mr-1"></i> Cancel</button>
+                    </div>
+                </form>
+            </div>`;
+
+            // Image preview functionality
+            const imageInput = document.getElementById('hwImage');
+            const imagePreview = document.getElementById('imagePreview');
+            
+            if (imageInput) {
+                imageInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            imagePreview.innerHTML = `<img src="${e.target.result}" class="image-preview" alt="Image preview">`;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        imagePreview.innerHTML = '';
+                    }
+                });
+            }
+
+            document.getElementById('hwForm').onsubmit = (e) => { 
+                e.preventDefault(); 
+                
+                const imageInput = document.getElementById('hwImage');
+                let imageData = null;
+                
+                if (imageInput && imageInput.files.length > 0) {
+                    convertImageToBase64(imageInput.files[0], function(base64) {
+                        imageData = base64;
+                        try { 
+                            App.createHomework(e.target, imageData); 
+                        } catch (err) { 
+                            showAlert(err.message, 'error');
+                        }
+                    });
+                } else {
+                    try { 
+                        App.createHomework(e.target, null); 
+                    } catch (err) { 
+                        showAlert(err.message, 'error');
+                    }
+                }
+            };
+        }
+
+        function viewHW(hwId) { 
+            const db = DB.load(); 
+            const hw = db.homeworks.find(h => h.id === hwId); 
+            if (!hw) return; 
+            const me = Auth.me(); 
+            const subs = hw.submissions.map(s => { 
+                const user = db.users.find(u => u.id === s.studentId); 
+                return {...s, studentName: user?.name || user?.username || 'Unknown', rollNo: user?.rollNo || ''}; 
+            });
+            
+            document.getElementById('app').innerHTML = `
+                <div class="bg-white p-4 rounded-2xl shadow">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold flex items-center"><i class="fas fa-book mr-2 text-blue-600"></i> ${escapeHtml(hw.title)}</h3>
+                        <div>
+                            <button class="px-3 py-1 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="renderTeacherDashboard()"><i class="fas fa-arrow-left mr-1"></i> Back</button>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-700">${escapeHtml(hw.desc || '')}</div>
+                    ${hw.image ? `<div class="mt-3"><img src="${hw.image}" class="image-preview" alt="Homework Image"></div>` : ''}
+                    ${hw.dueDate ? `<div class="mt-1 text-sm ${new Date(hw.dueDate) < new Date() ? 'text-red-600' : 'text-gray-500'}">Due: ${formatDate(hw.dueDate)}</div>` : ''}
+                    <div class="mt-6">
+                        <h4 class="font-semibold text-lg flex items-center"><i class="fas fa-file-alt mr-2"></i> Submissions (${subs.length})</h4>
+                        <div class="mt-2 space-y-4">
+                            ${subs.length > 0 ? subs.map(s => `
+                                <div class="border p-4 rounded-lg hover:shadow-md transition-shadow card-hover">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <b>${escapeHtml(s.studentName)}</b> 
+                                            <span class="text-xs text-gray-500 ml-2">Roll: ${s.rollNo}</span>
+                                            <div class="text-xs text-gray-500">Submitted: ${s.submitAt ? formatDateTime(s.submitAt) : '—'}</div>
+                                        </div>
+                                        <div>${s.marks !== null ? `<span class="text-green-600 font-semibold">Marks: ${s.marks}</span>` : '<span class="text-gray-500">Not graded</span>'}</div>
+                                    </div>
+                                    <div class="mt-3 text-sm bg-gray-50 p-3 rounded">${escapeHtml(s.answer || 'कोई उत्तर नहीं दिया गया')}</div>
+                                    ${s.image ? `<div class="mt-3"><img src="${s.image}" class="image-preview" alt="Submission Image"></div>` : ''}
+                                    ${s.feedback ? `<div class="mt-2 text-sm bg-blue-50 p-3 rounded"><b>Feedback:</b> ${escapeHtml(s.feedback)}</div>` : ''}
+                                    <div class="mt-3 flex gap-2">
+                                        <button class="px-3 py-1 rounded bg-blue-600 text-white flex items-center hover:bg-blue-700 transition-colors" onclick="openGrade('${hw.id}','${s.studentId}')"><i class="fas fa-star mr-1"></i> Grade</button>
+                                    </div>
+                                </div>
+                            `).join('') : '<div class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-3xl mb-2"></i><p>कोई submission नहीं</p></div>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openGrade(hwId, studentId) { 
+            const db = DB.load(); 
+            const hw = db.homeworks.find(h => h.id === hwId); 
+            const sub = hw.submissions.find(s => s.studentId === studentId); 
+            const student = db.users.find(u => u.id === studentId);
+            
+            document.getElementById('app').innerHTML = `
+            <div class="bg-white p-4 rounded-2xl shadow max-w-2xl mx-auto card-hover">
+                <h3 class="text-xl font-bold flex items-center"><i class="fas fa-star mr-2 text-yellow-500"></i> Grade Submission</h3>
+                <div class="mt-2">Student: <b>${escapeHtml(student.name)}</b> (Roll: ${student.rollNo})</div>
+                <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                    <div class="text-sm font-semibold mb-1">Answer:</div>
+                    <div class="text-sm">${escapeHtml(sub.answer || 'कोई उत्तर नहीं दिया गया')}</div>
+                    ${sub.image ? `<div class="mt-3"><img src="${sub.image}" class="image-preview" alt="Submission Image"></div>` : ''}
+                </div>
+                <form id="gradeForm" class="mt-4 grid gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Marks</label>
+                        <input name="marks" type="number" min="0" max="100" placeholder="Marks" class="p-2 border rounded w-full" value="${sub.marks !== null ? sub.marks : ''}" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Feedback</label>
+                        <textarea name="feedback" placeholder="Feedback" class="p-2 border rounded w-full" rows="3">${sub.feedback || ''}</textarea>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white flex items-center hover:bg-blue-700 transition-colors"><i class="fas fa-save mr-1"></i> Save</button>
+                        <button type="button" class="px-4 py-2 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="viewHW('${hwId}')"><i class="fas fa-times mr-1"></i> Cancel</button>
+                    </div>
+                </form>
+            </div>
+            `;
+
+            document.getElementById('gradeForm').onsubmit = (e) => { 
+                e.preventDefault(); 
+                const formData = new FormData(e.target);
+                const marks = Number(formData.get('marks')) || 0;
+                const feedback = formData.get('feedback');
+                
+                App.gradeSubmission(hwId, studentId, marks, feedback); 
+            };
+        }
+
+        function openSubmit(hwId) { 
+            const db = DB.load(); 
+            const hw = db.homeworks.find(h => h.id === hwId); 
+            const me = Auth.me(); 
+            const mySub = hw.submissions.find(s => s.studentId === me.id);
+            const isOverdue = hw.dueDate && new Date(hw.dueDate) < new Date();
+            
+            document.getElementById('app').innerHTML = `
+                <div class="bg-white p-4 rounded-2xl shadow max-w-2xl mx-auto card-hover">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold flex items-center"><i class="fas fa-book mr-2 text-blue-600"></i> ${escapeHtml(hw.title)}</h3>
+                        <button class="px-3 py-1 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="renderStudentDashboard()"><i class="fas fa-arrow-left mr-1"></i> Back</button>
+                    </div>
+                    <div class="mt-2 text-gray-700">${escapeHtml(hw.desc || '')}</div>
+                    ${hw.image ? `<div class="mt-3"><img src="${hw.image}" class="image-preview" alt="Homework Image"></div>` : ''}
+                    ${hw.dueDate ? `
+                        <div class="mt-2 text-sm ${isOverdue ? 'text-red-600' : 'text-gray-500'}">
+                            Due: ${formatDate(hw.dueDate)} ${isOverdue ? '(Overdue)' : ''}
+                        </div>
+                    ` : ''}
+                    <div class="mt-6">
+                        <form id="submitForm" class="grid gap-2">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Your Answer</label>
+                                <textarea name="answer" placeholder="अपना उत्तर लिखें" class="p-2 border rounded w-full" rows="5">${mySub ? escapeHtml(mySub.answer) : ''}</textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">इमेज अपलोड करें (वैकल्पिक)</label>
+                                <input type="file" id="submissionImage" accept="image/*" class="p-2 border rounded w-full" />
+                                <div id="submissionImagePreview" class="mt-2">
+                                    ${mySub && mySub.image ? `<img src="${mySub.image}" class="image-preview" alt="Current Image">` : ''}
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white flex items-center hover:bg-blue-700 transition-colors"><i class="fas fa-paper-plane mr-1"></i> Submit</button>
+                                <button type="button" class="px-4 py-2 rounded border flex items-center hover:bg-gray-50 transition-colors" onclick="renderStudentDashboard()"><i class="fas fa-times mr-1"></i> Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="mt-6 border-t pt-4">
+                        <h4 class="font-semibold flex items-center"><i class="fas fa-star mr-2 text-yellow-500"></i> Feedback</h4>
+                        <div class="mt-2 text-sm text-gray-600 p-3 bg-gray-50 rounded">
+                            ${mySub && mySub.feedback ? escapeHtml(mySub.feedback) : 'अभी तक कोई फीडबैक नहीं है'}
+                        </div>
+                        <div class="mt-2 text-sm font-semibold">
+                            Marks: ${mySub && mySub.marks !== null ? mySub.marks : '—'}
+                        </div>
+                        </div>
+                </div>
+            `;
+
+            // Image preview functionality for submission
+            const imageInput = document.getElementById('submissionImage');
+            const imagePreview = document.getElementById('submissionImagePreview');
+            
+            if (imageInput) {
+                imageInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            imagePreview.innerHTML = `<img src="${e.target.result}" class="image-preview" alt="Image preview">`;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            document.getElementById('submitForm').onsubmit = (e) => { 
+                e.preventDefault(); 
+                
+                const imageInput = document.getElementById('submissionImage');
+                let imageData = null;
+                
+                if (imageInput && imageInput.files.length > 0) {
+                    convertImageToBase64(imageInput.files[0], function(base64) {
+                        imageData = base64;
+                        try {
+                            App.submitHomework(hwId, e.target, imageData); 
+                        } catch (err) {
+                            showAlert(err.message, 'error');
+                        }
+                    });
+                } else if (mySub && mySub.image) {
+                    // Keep existing image if no new image is uploaded
+                    imageData = mySub.image;
+                    try {
+                        App.submitHomework(hwId, e.target, imageData); 
+                    } catch (err) {
+                        showAlert(err.message, 'error');
+                    }
+                } else {
+                    try {
+                        App.submitHomework(hwId, e.target, null); 
+                    } catch (err) {
+                        showAlert(err.message, 'error');
+                    }
+                }
+            };
+        }
+
+        // Utility functions
+        function escapeHtml(s) { 
+            if (!s) return ''; 
+            return String(s).replaceAll('<', '&lt;').replaceAll('>', '&gt;'); 
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('hi-IN', options);
+        }
+
+        function formatDateTime(timestamp) {
+            if (!timestamp) return '';
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return new Date(timestamp).toLocaleDateString('hi-IN', options);
+        }
+        
+        function getStatusText(status) {
+            switch(status) {
+                case 'scheduled': return 'शेड्यूल्ड';
+                case 'ongoing': return 'चल रहा है';
+                case 'completed': return 'समाप्त';
+                default: return status;
+            }
+        }
+
+        // Initialize the application
+        App.init();
+    </script>
+</body>
+</html>
